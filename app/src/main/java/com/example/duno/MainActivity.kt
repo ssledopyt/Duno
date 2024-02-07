@@ -1,7 +1,16 @@
 package com.example.duno
 
-class MainActivity {
-    @Composable
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import timber.log.Timber
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?){
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+    /*@Composable
     fun HelloScreen() {
         var name by rememberSaveable { mutableStateOf("") }
 
@@ -18,5 +27,5 @@ class MainActivity {
             )
             OutlinedTextField(value = name, onValueChange = onNameChange, label = { Text("Name") })
         }
-    }
+    }*/
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "726338526679",
+    "project_id": "duno-25a0e",
+    "storage_bucket": "duno-25a0e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726338526679:android:1ed49dff6236e3d92a7f92",
+        "android_client_info": {
+          "package_name": "com.example.duno"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjVjV26_uw7rTbplE24usonbiG1xv1eQI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

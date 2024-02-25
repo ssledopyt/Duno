@@ -3,16 +3,19 @@ package com.example.duno
 
 
 
-import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -151,6 +154,7 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         //restoreState = true
     }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventsScreen() {
     Column(
@@ -158,8 +162,37 @@ fun EventsScreen() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.inverseOnSurface)
     ) {
-        Text(text = "eye")
-        Timber.e("EVENTS")
+        Box(modifier = Modifier.padding(top = 12.dp, start = 12.dp)) {
+            var selected by remember { mutableStateOf(false) }
+            var text by rememberSaveable { mutableStateOf("") }
+            TextField(
+                modifier = Modifier.size(140.dp,40.dp),
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Label") },
+                singleLine = true
+            )
+            FilterChip(
+                modifier = Modifier.padding( end = 0.dp),
+                onClick = {
+                    selected = !selected
+                    Timber.d("DnD filter")
+                          },
+                label = { Text("DnD") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Filled.Settings,
+                        contentDescription = "Localized description",
+                        Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                },
+                selected = selected,
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = Colors.md_Primary,
+                    iconColor = Colors.md_Background,
+                )
+            )
+        }
     }
 }
 

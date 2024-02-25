@@ -3,22 +3,19 @@ package com.example.duno
 
 
 
+import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-
 import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -63,21 +60,23 @@ fun Screen(){
         navBackStackEntry?.destination?.route ?: Events.route
 
     Scaffold (
-        topBar = {
+        topBar = {if (selectedDestination != DunoScreens.MAP_SCREEN) {
             TopAppBar(
                 colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Top app bar")
+                    Text(selectedDestination)
                 }
             )
+        }
+            else {
+                Text(selectedDestination)}
         },
         bottomBar = {
             BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = Colors.md_Surface,
             ) {
                 CommonUI(
                     navController = navController,
@@ -109,29 +108,36 @@ fun CommonUI(
     navController: NavHostController,
     selectedDestination: String,
 ) {
-    var selectedItem by remember { mutableStateOf(DunoRowScreens) }
+    val selectedItem by remember { mutableStateOf(DunoRowScreens) }
     Box(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
             modifier = Modifier.align(Alignment.BottomCenter),
-            containerColor = Colors.md_Surface
+            containerColor = Colors.md_Surface,
         ) {
-            selectedItem.forEachIndexed { index, item ->
+            selectedItem.forEachIndexed { index,  item ->
                 NavigationBarItem(
-                    icon = { Icon(item.icon, contentDescription = null) },
+                    icon = {Icon(
+                        if (selectedDestination == item.route)
+                            item.selectedIcon
+                        else item.unselectedIcon,
+                        contentDescription = null) },
                     label = { Text(item.text) },
                     selected = selectedDestination == item.route,
                     onClick = {
-                        navController.navigate(item.route)
+                        navController.navigateSingleTopTo(item.route)
                         Timber.e(selectedDestination)
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Red,
-                        indicatorColor = Color.)
+                        selectedIconColor = Colors.md_PrimaryContainer,
+                        indicatorColor = Colors.md_Surface
+                    )
                 )
             }
         }
     }
 }
+
+
 
 
 fun NavHostController.navigateSingleTopTo(route: String) =

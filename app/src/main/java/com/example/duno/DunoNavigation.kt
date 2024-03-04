@@ -46,4 +46,5 @@ object Map : DunoDestination{
     override val text = "Карты"
 }
 
+
 val DunoRowScreens = listOf(Map, Events, Profile)

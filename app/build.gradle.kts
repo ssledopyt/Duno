@@ -1,3 +1,6 @@
+import java.util.Properties
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -18,7 +21,21 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        //buildConfigField("String", "YAMAP", "\"${mapkitApiKey}\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        //load the values from .properties file
+        val keystoreFile = project.rootProject.file("local.properties")
+        val properties = Properties()
+        properties.load(keystoreFile.inputStream())
+
+        //return empty key in case something goes wrong
+        val apiKey = properties.getProperty("YAMAp") ?: ""
+
+        buildConfigField(
+            type = "String",
+            name = "YAMAp",
+            value = apiKey
+        )
     }
 
     buildTypes {
@@ -26,6 +43,12 @@ android {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+        /*release {
+            val p = Properties()
+            p.load(project.rootProject.file("local.properties").reader())
+            val yourKey: String = p.getProperty("YAMAp")
+            buildConfigField("String", "YAMAP", "\"$yourKey\"")
+        }*/
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -44,6 +67,8 @@ android {
     }
 
 }
+
+
 
 dependencies {
 
@@ -65,9 +90,11 @@ dependencies {
     //implementation("com.google.dagger:hilt-compiler:2.50")
     //implementation("com.google.dagger:hilt-android:2.50")
     implementation("com.google.dagger:hilt-android:2.44")
+    implementation("androidx.compose.ui:ui-viewbinding:1.2.1")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 
     //implementation("androidx.compose.material:material-icons-core")
+    implementation("com.yandex.android:maps.mobile:4.5.1-lite")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
 

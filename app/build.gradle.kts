@@ -90,7 +90,10 @@ dependencies {
     //implementation("com.google.dagger:hilt-compiler:2.50")
     //implementation("com.google.dagger:hilt-android:2.50")
     implementation("com.google.dagger:hilt-android:2.44")
-    implementation("androidx.compose.ui:ui-viewbinding:1.2.1")
+    implementation("androidx.compose.ui:ui-viewbinding:1.6.0")
+//    implementation("androidx.compose.ui:ui-viewinterop:1.6.0")
+    implementation("androidx.fragment:fragment-ktx:1.7.0-alpha09")
+
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 
     //implementation("androidx.compose.material:material-icons-core")

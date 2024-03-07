@@ -31,6 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.duno.compose.EventsScreen
 import com.example.duno.compose.MapScreen
+import com.example.duno.compose.MapScreenUI
 import com.example.duno.compose.ProfileScreen
 import com.example.duno.ui.Colors
 import timber.log.Timber
@@ -50,7 +51,7 @@ fun DunoNavGraph(
             EventsScreen()
         }
         composable(DunoScreens.MAP_SCREEN){
-            MapScreen()
+            MapScreenUI()
         }
         composable(DunoScreens.PROFILE_SCREEN){
             ProfileScreen()
@@ -166,54 +167,6 @@ fun NavHostController.navigateSingleTopTo(route: String) =
     }
 
 
-@Composable
-fun EventsDetails(
-    modifier: Modifier = Modifier,
-    text: String
-) {
-    Card(
-        modifier = modifier
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = text,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            )
-            Spacer(Modifier.height(8.dp))
-            /*FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                image.tags.forEach { tag ->
-                    SuggestionChip(
-                        label = {
-                            Text(text = tag)
-                        },
-                        onClick = {},
-                    )
-                }
-            }*/
-            //Spacer(Modifier.height(8.dp))
-        }
-    }
-}
-
-/*@Composable
-fun MapScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.inverseOnSurface)
-    ) {
-        Text(text = "uy")
-    }
-}*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -14,7 +14,5 @@ class DunoApplication : Application(){
         super.onCreate()
         if (BuildConfig.DEBUG) Timber.plant(DebugTree())
         MapKitFactory.setApiKey(BuildConfig.YAMAp)
-        MapKitFactory.initialize(this)
-
     }
 }

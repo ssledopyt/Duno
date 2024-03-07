@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,9 +35,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.duno.EventsDetails
 import com.example.duno.PreviewFilterChipGroup
-
+@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventsScreen() {
@@ -43,7 +44,7 @@ fun EventsScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.inverseOnSurface)
-            .verticalScroll(rememberScrollState())
+     //       .verticalScroll(rememberScrollState())
             .semantics { contentDescription = "Events Screen" }
     ) {
         var text by remember { mutableStateOf("") } // Query for SearchBar
@@ -124,6 +125,56 @@ fun EventsScreen() {
         }
     }
 }
+
+
+@Composable
+fun EventsDetails(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+            /*FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                image.tags.forEach { tag ->
+                    SuggestionChip(
+                        label = {
+                            Text(text = tag)
+                        },
+                        onClick = {},
+                    )
+                }
+            }*/
+            //Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/*@Composable
+fun MapScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.inverseOnSurface)
+    ) {
+        Text(text = "uy")
+    }
+}*/
 
 /*
 @Preview

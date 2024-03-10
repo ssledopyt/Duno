@@ -1,5 +1,6 @@
 package com.example.duno.compose
 
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,9 +16,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidViewBinding
+import androidx.fragment.app.FragmentManager
+import com.example.duno.databinding.ActivityYndxAuthBinding
+import timber.log.Timber
 
 @Preview
 @Composable
@@ -26,6 +32,11 @@ fun RegistrationScreen() {
     val emailState = remember { mutableStateOf("") }
     val passwordState = remember { mutableStateOf("") }
     val confirmPasswordState = remember { mutableStateOf("") }
+    var startNewActivity = remember {mutableStateOf(false)}
+
+    val activity = LocalContext.current
+    lateinit var binding: ActivityYndxAuthBinding
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -69,13 +80,31 @@ fun RegistrationScreen() {
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                // Обработка регистрации
-                // ...
+
+            Timber.tag("kras").e("erw")
                 //navController.navigate(MainScreen.route)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Зарегистрироваться")
+
+        }
+
+        AndroidViewBinding(factory = ActivityYndxAuthBinding::inflate){
+
+            yndxauth.setOnClickListener{
+                
+                Timber.e("Button yandex!")
+            }
         }
     }
+
+
+/*    LaunchedEffect(key1 = startNewActivity.value){
+        if(startNewActivity.value){
+            activity.startActivity(Intent(activity, OYndxAuth::class.java))
+        }
+    }*/
+
 }
+

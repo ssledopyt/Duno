@@ -23,7 +23,9 @@
         <activity
                 android:name=".compose.MapScreen">
         </activity>
-
+        <activity
+                android:name=".compose.OYndxAuth">
+        </activity>
     </application>
 
 </manifest>

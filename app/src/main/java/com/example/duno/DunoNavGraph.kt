@@ -1,12 +1,9 @@
 package com.example.duno
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,7 +27,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.duno.compose.EventsScreen
-import com.example.duno.compose.MapScreen
 import com.example.duno.compose.MapScreenUI
 import com.example.duno.compose.ProfileScreen
 import com.example.duno.ui.Colors
@@ -71,12 +67,18 @@ fun Screen(){
     Scaffold (
         topBar = {if (selectedDestination == DunoScreens.MAP_SCREEN) {
             TopAppBar(
+                modifier = Modifier.height(48.dp),
                 colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("Duno")
+                    Box(modifier = Modifier.fillMaxSize()){
+                        Text("Duno",
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                    }
+
                 }
             )
         }

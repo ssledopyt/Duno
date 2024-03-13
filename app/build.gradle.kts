@@ -92,7 +92,7 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.44")
     implementation("androidx.compose.ui:ui-viewbinding:1.6.0")
 //    implementation("androidx.compose.ui:ui-viewinterop:1.6.0")
-    implementation("androidx.fragment:fragment-ktx:1.7.0-alpha09")
+    implementation("androidx.fragment:fragment:1.6.2")
 
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 

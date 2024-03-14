@@ -1,5 +1,7 @@
 package com.example.duno.compose
 
+
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,18 +27,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
-import com.example.duno.BuildConfig
-import com.example.duno.R.*
-import com.example.duno.databinding.ActivityYndxAuthBinding
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import com.example.duno.R
 import com.example.duno.databinding.MapScreenBinding
-import com.example.duno.ui.StandartDp
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.mapview.MapView
 import timber.log.Timber
 
@@ -95,6 +95,8 @@ fun MapScreenUI(
 
 class MapScreen :Fragment(){
     private lateinit var mapView: MapView
+    private var _binding: MapScreenBinding? = null
+    private val binding get() = _binding!!
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,6 +110,7 @@ class MapScreen :Fragment(){
                 /* tilt = */ 30.0f
             )
         )
+
     }
 
     override fun onCreateView(
@@ -115,11 +118,24 @@ class MapScreen :Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        _binding = MapScreenBinding.inflate(inflater, container, false)
+        binding.mapview.mapWindow.map.move(CameraPosition(
+            Point(55.751225, 37.629540),
+            /* zoom = */ 17.0f,
+            /* azimuth = */ 150.0f,
+            /* tilt = */ 30.0f
+        ))
+        val view = binding.root
         Timber.e("Zdes3")
-        val mapView = inflater.inflate(layout.map_screen, container, false)
-        Timber.e("Initilaize map")
-        return mapView
+        return view
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+
     override fun onStart() {
         super.onStart()
         //Timber.e("Zdes4")

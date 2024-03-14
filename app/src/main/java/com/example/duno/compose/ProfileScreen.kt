@@ -13,26 +13,15 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +29,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.duno.ui.Colors
-import com.example.duno.ui.Shapes
+import com.example.duno.ui.SmallDp
+import com.example.duno.ui.StandartDp
+import com.example.duno.ui.TinyDp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,14 +77,16 @@ fun UserEvents() {
 
 @Composable
 fun AboutApp() {
-    OutlinedButton(onClick = { /*TODO*/ },
+    OutlinedButton(onClick = {
+    },
         border = BorderStroke(1.dp, Color.DarkGray),
         shape = RoundedCornerShape(4.dp),
-        modifier = Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp).height(40.dp)
+        modifier = Modifier.fillMaxWidth().padding(start = SmallDp, end = SmallDp).height(40.dp)
         ) {
         Text(text = "Помощь")
     }
 }
+
 
 @Composable
 fun TopBarProfile(
@@ -112,7 +105,7 @@ fun TopBarProfile(
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
                     .wrapContentWidth()
-                    .padding(top = 24.dp)
+                    .padding(top = StandartDp)
                 //modifier = modifier.align(Alignment.CenterHorizontally)
             )
             Text(
@@ -146,53 +139,11 @@ fun EventItem(event: Event) {
             )
             Text(
                 text = event.description,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = TinyDp)
             )
         }
     }
 }
-
-@Composable
-fun ProfileTopBar(
-    user: User,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(8.dp)
-    ) {
-        // Отображение фото профиля
-        /*val image = Image(
-            painter = painterResource(id = R.drawable.profile_image),
-            contentDescription = "Profile image",
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .align(Alignment.CenterStart)
-        )*/
-
-        // Отображение имени и фамилии
-        Text(
-            text = "${user.name} ${user.surname}",
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(start = 16.dp)
-        )
-
-        // Добавление кнопки для дополнительных действий
-        IconButton(
-            onClick = { /* Do something */ },
-            modifier = Modifier.align(Alignment.CenterEnd)
-        ) {
-            Icon(
-                Icons.Filled.Menu,
-                contentDescription = "Menu",
-            )
-        }
-    }
-}
-
 
 data class User(
     val name: String,

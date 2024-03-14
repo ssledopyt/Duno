@@ -11,13 +11,17 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class DunoActivity : AppCompatActivity() {
+
     private lateinit var mapView: MapView
+
 
 
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
+        Timber.e("Zdes1")
         MapKitFactory.setApiKey(BuildConfig.YAMAp)
         MapKitFactory.initialize(this)
+
         mapView = MapScreenBinding.inflate(layoutInflater).root.findViewById(R.id.mapview)
         Timber.e("Zdes1")
       //val mapscreen = MapScreenBinding.inflate(layoutInflater)

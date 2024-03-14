@@ -1,7 +1,9 @@
 package com.example.duno.compose
 
+
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +12,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,26 +41,6 @@ import com.yandex.mapkit.mapview.MapView
 import timber.log.Timber
 
 
-/*
-import kotlin.reflect.KClass
-
-@Composable
-fun FragmentView(fragmentClass: KClass<out Fragment>): Unit {
-    val context = LocalContext.current
-    val fragmentManager = (context as AppCompatActivity).supportFragmentManager
-
-    // Создайте экземпляр Fragment
-    val fragment = fragmentClass.java.newInstance()
-
-    // Добавьте Fragment в транзакцию
-    val transaction = fragmentManager.beginTransaction()
-    transaction.add(R.id.fragment_container, fragment)
-    transaction.commit()
-}
-*/
-
-
-
 @Preview(apiLevel = 33)
 @Composable
 fun MapScreenUI(
@@ -63,11 +48,7 @@ fun MapScreenUI(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-
-        AndroidViewBinding(factory = MapScreenBinding::inflate){
-
-        }
-
+        AndroidViewBinding(factory = MapScreenBinding::inflate)
         var isExpanded by remember {mutableStateOf(false)}
         if (isExpanded) {
             AnimatedVisibility(
@@ -95,12 +76,14 @@ fun MapScreenUI(
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(bottom = 24.dp, end = 20.dp),
+                        .padding(bottom = StandartDp, end = StandartDp - 6.dp),
                     onClick = {
                         isExpanded = true
                         Timber.e("Button True")
                     }
-                ){}
+                ){
+                    Icon(modifier = Modifier.size(StandartDp), imageVector = Icons.Filled.Add, contentDescription = null)
+                }
             }
         }
         //Spacer(modifier = Modifier.)
@@ -110,28 +93,24 @@ fun MapScreenUI(
 }
 
 
-/*
-@Composable
-fun <T : ViewBinding> FragmentHolderScreen(
-    androidViewBindingFactory: (inflater: LayoutInflater, parent: ViewGroup, attachToParent: Boolean) -> T,
-    androidViewBindingUpdate: T.() -> Unit = {},
-) {
-    AndroidViewBinding(
-        factory = androidViewBindingFactory,
-        modifier = Modifier.fillMaxSize(),
-        update = androidViewBindingUpdate,
-    )
-}
-*/
-
 class MapScreen :Fragment(){
     private lateinit var mapView: MapView
     private var _binding: MapScreenBinding? = null
     private val binding get() = _binding!!
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.e("Zdes2")
+        mapView.map.move(
+            CameraPosition(
+                Point(55.751225, 37.629540),
+                /* zoom = */ 17.0f,
+                /* azimuth = */ 150.0f,
+                /* tilt = */ 30.0f
+            )
+        )
+
     }
 
     override fun onCreateView(
@@ -159,6 +138,7 @@ class MapScreen :Fragment(){
 
     override fun onStart() {
         super.onStart()
+        //Timber.e("Zdes4")
         MapKitFactory.getInstance().onStart()
         mapView.onStart()
     }
@@ -169,30 +149,3 @@ class MapScreen :Fragment(){
         super.onStop()
     }
 }
-/*
-class MapScreen :ComponentActivity(){
-    private lateinit var mapView: MapView
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Timber.e("Zdes2")
-
-//        MapKitFactory.setApiKey(BuildConfig.YAMAp)
-        MapKitFactory.initialize(this)
-        setContentView(layout.map_screen)
-        mapView = findViewById(R.id.mapview)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        MapKitFactory.getInstance().onStart()
-        mapView.onStart()
-    }
-
-    override fun onStop() {
-        mapView.onStop()
-        MapKitFactory.getInstance().onStop()
-        super.onStop()
-    }
-
-}*/

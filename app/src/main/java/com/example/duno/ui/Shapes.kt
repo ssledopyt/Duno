@@ -20,6 +20,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
+val Standart_CommonButtonHeight = 48.dp
+val Standart_CommonButtonWidht = 48.dp
+val Standart_FABHeight = 48.dp
+val Standart_FABWidht = 48.dp
+
+val TinyDp = 8.dp
+val SmallDp = 12.dp
+val StandartDp = 24.dp
+val MediumDp = 36.dp
+val LargeDp = 48.dp
+
+
+
 val Shapes = Shapes(
     small = RoundedCornerShape(
         topStart = 0.dp,

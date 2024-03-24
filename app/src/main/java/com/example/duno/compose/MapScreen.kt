@@ -1,7 +1,6 @@
 package com.example.duno.compose
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,14 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
-import com.example.duno.BuildConfig
-import com.example.duno.R.*
-import com.example.duno.databinding.ActivityYndxAuthBinding
-import com.example.duno.databinding.MapScreenBinding
+import com.example.duno.R
+import com.example.duno.databinding.FragmentContainerBinding
 import com.example.duno.ui.StandartDp
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -48,7 +43,7 @@ fun MapScreenUI(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        AndroidViewBinding(factory = MapScreenBinding::inflate)
+        AndroidViewBinding(factory = FragmentContainerBinding::inflate)
         var isExpanded by remember {mutableStateOf(false)}
         if (isExpanded) {
             AnimatedVisibility(
@@ -80,15 +75,13 @@ fun MapScreenUI(
                     onClick = {
                         isExpanded = true
                         Timber.e("Button True")
+
                     }
                 ){
                     Icon(modifier = Modifier.size(StandartDp), imageVector = Icons.Filled.Add, contentDescription = null)
                 }
             }
         }
-        //Spacer(modifier = Modifier.)
-
-
     }
 }
 
@@ -99,8 +92,23 @@ class MapScreen :Fragment(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MapKitFactory.initialize(this.context)
         Timber.e("Zdes2")
-        mapView.map.move(
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.map_screen,container,false)
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mapView = view.findViewById(R.id.mapview)
+        mapView.mapWindow.map.move(
             CameraPosition(
                 Point(55.751225, 37.629540),
                 /* zoom = */ 17.0f,
@@ -110,19 +118,9 @@ class MapScreen :Fragment(){
         )
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        Timber.e("Zdes3")
-        val mapView = inflater.inflate(layout.map_screen, container, false)
-        Timber.e("Initilaize map")
-        return mapView
-    }
     override fun onStart() {
         super.onStart()
-        //Timber.e("Zdes4")
+        Timber.e("Zdes4")
         MapKitFactory.getInstance().onStart()
         mapView.onStart()
     }

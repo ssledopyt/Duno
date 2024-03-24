@@ -1,5 +1,7 @@
 package com.example.duno.compose
 
+
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +34,7 @@ import com.example.duno.ui.StandartDp
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.mapview.MapView
 import timber.log.Timber
 
@@ -88,6 +91,8 @@ fun MapScreenUI(
 
 class MapScreen :Fragment(){
     private lateinit var mapView: MapView
+    private var _binding: MapScreenBinding? = null
+    private val binding get() = _binding!!
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,6 +121,7 @@ class MapScreen :Fragment(){
                 /* tilt = */ 30.0f
             )
         )
+
     }
 
     override fun onStart() {

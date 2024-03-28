@@ -45,12 +45,19 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.duno.data.Meeting
 import com.example.duno.data.MeetingViewModel
+import com.example.duno.db.ApiHelper
 import com.example.duno.ui.LargeDp
 import com.example.duno.ui.SmallDp
 import com.example.duno.ui.TinyDp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
@@ -136,6 +143,7 @@ fun EventsList(
         ){
         items(eventsList) { event ->
             EventsDetails(event = event)
+            SingleNetworkCallViewModel()
         }
     }
 
@@ -233,6 +241,28 @@ fun PreviewFilterChipGroup() {
 
         })
 }
+
+class SingleNetworkCallViewModel(private val apiHelper: ApiHelper) : ViewModel() {
+
+    init {
+        fetchUsers()
+    }
+
+    private fun fetchUsers() {
+        viewModelScope.launch {
+            apiHelper.getUsers()
+                .flowOn(Dispatchers.IO)
+                .catch { e ->
+                    // handle exception
+                }
+                .collect { value ->
+                    Timber.e(value.last())
+                }
+        }
+    }
+
+}
+
 
 //CustomFilterChip
 /*Box(modifier = Modifier.padding( start = 12.dp)) {

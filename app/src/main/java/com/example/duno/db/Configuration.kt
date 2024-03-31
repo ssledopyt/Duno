@@ -8,6 +8,7 @@ import java.util.Date
 
 var formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
+class User : ArrayList<ApiUser>()
 data class ApiUser(
     @SerializedName("user_id")
     val id: Int = 0,

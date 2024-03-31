@@ -1,53 +1,80 @@
 package com.example.duno.db
 
-import android.provider.ContactsContract.CommonDataKinds.Nickname
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import com.example.duno.data.Meeting
+import com.yandex.mapkit.geometry.Point
+import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
-import javax.inject.Inject
-
-import javax.inject.Singleton
 
 interface ApiService {
 
-    @GET("select_user_information")
-    suspend fun getUser(@Query("nickname") nickname: String): List<ApiUser>
+    //Найти пользователя
+    @GET("/user")
+    suspend fun getUser(
+        @Query("nickname") name: String?,
+    ): ApiUser
 
-    @GET("more-users")
+    //Создать пользователя
+    @POST("/user")
+    suspend fun createUser(
+        @Query("name") name: String?,
+        @Query("second_name") secondName: String?,
+        @Query("phone") phone: String?,
+        @Query("email") email: String?,
+        @Query("password") password: String?,
+    ): List<ApiUser>
+
+    //Изменить данные пользователя
+    @PUT("/user")
+    suspend fun changeUserInformation(
+        @Query("name") name: String?,
+        @Query("email") email: String?,
+        @Query("password") password: String?
+    ): List<ApiUser>
+
+    //Найти встречу
+    @GET("/meeting")
+    suspend fun getMeeting(
+        @Query("meeting_id") meetingID: Int?,
+    ): List<Meeting>
+
+    //Создать встречу
+    @POST("/meeting")
+    suspend fun createMeeting(meeting: ApiMeeting): Response<ApiMeeting>
+
+    //Изменить информацию о встрече
+    @PUT("/meeting")
+    suspend fun changeMeetingInformation(
+        @Query("body") name: String?,
+        @Query("status") email: Boolean?,
+        @Query("geo_marker") password: Point?
+    ): Response<ApiMeeting>
+
+    //Удалить встречу
+    @DELETE("/meeting")
+    suspend fun deleteMeeting(
+        @Query("meeting_id") meetingId: Int?
+    ): Response<ApiMeeting>
+
+    @GET("/more-users")
     suspend fun getMoreUsers(): List<ApiUser>
 
-    @GET("error")
+    @GET("/error")
     suspend fun getUsersWithError(): List<ApiUser>
 
 }
 
-interface ApiHelper {
+/*interface ApiHelper {
 
-    fun getUser(nickname: String): Flow<List<ApiUser>>
+    fun getUser(user: ApiUser): Flow<DataStatus<List<ApiUser>>>
 
     fun getMoreUsers(): Flow<List<ApiUser>>
 
     fun getUsersWithError(): Flow<List<ApiUser>>
 
-}
+}*/
 
-@Singleton
-class ApiHelperImpl @Inject constructor(private val apiService: ApiService) : ApiHelper {
-
-    override fun getUser(nickname: String) = flow {
-        emit(apiService.getUser(nickname))
-    }
-
-    override fun getMoreUsers() = flow {
-        emit(apiService.getMoreUsers())
-    }
-
-    override fun getUsersWithError() = flow {
-        emit(apiService.getUsersWithError())
-    }
-
-}
-
-val apiHelper = ApiHelperImpl(RetrofitBuilder.apiService)
 

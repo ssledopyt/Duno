@@ -12,6 +12,7 @@ import javax.inject.Singleton
 class ApiRepository @Inject constructor(private val apiService: ApiService) :ApiHelper {
 
     override fun getUser(nickname: String) = flow {
+        emit(DataStatus.loading())
         val user = apiService.getUser(nickname)
         emit(DataStatus.success(user))
     }.catch {
@@ -28,7 +29,7 @@ class ApiRepository @Inject constructor(private val apiService: ApiService) :Api
 
 }
 
-val apiHelper = ApiRepository(BDBuilder.apiService)
+val apiService = ApiRepository(BDBuilder.apiService)
 
 interface ApiHelper {
 

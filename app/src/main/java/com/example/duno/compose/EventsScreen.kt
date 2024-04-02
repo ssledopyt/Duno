@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,12 +49,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.duno.data.Meeting
 import com.example.duno.data.MeetingViewModel
 import com.example.duno.db.ApiHelper
 import com.example.duno.ui.LargeDp
 import com.example.duno.ui.SmallDp
 import com.example.duno.ui.TinyDp
+import com.example.duno.viewmodel.MainViewModel
+import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -62,7 +68,7 @@ import timber.log.Timber
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsScreen() {
+fun EventsScreen(mainViewModel: MainViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -99,8 +105,12 @@ fun EventsScreen() {
         Box(modifier = Modifier.padding(top = TinyDp, start = SmallDp)){
             PreviewFilterChipGroup()
         }
-        Box(modifier = Modifier.padding(top = TinyDp).padding(horizontal = TinyDp)){
-            //val meetingList by viewModel.meetingList.()
+        Box(modifier = Modifier
+            .padding(top = TinyDp)
+            .padding(horizontal = TinyDp)){
+            //lateinit var viewModel: MainViewModel = HiltViewModelFactory()
+            
+            
             val messages = mutableListOf(
                 Meeting("twtw"),
                 Meeting("twtw"),
@@ -115,9 +125,13 @@ fun EventsScreen() {
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
             val meetingViewModel = MeetingViewModel()
+            Box(modifier = Modifier.align(Alignment.Center)){
+                Text(text = mainViewModel.userList)
+            }
             EventsList(messages, listState, meetingViewModel)
             FloatingActionButton(
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
                     .padding(15.dp),
                 onClick = {
                     coroutineScope.launch{ listState.animateScrollToItem(index = 0)  }
@@ -143,7 +157,6 @@ fun EventsList(
         ){
         items(eventsList) { event ->
             EventsDetails(event = event)
-            SingleNetworkCallViewModel()
         }
     }
 
@@ -241,28 +254,6 @@ fun PreviewFilterChipGroup() {
 
         })
 }
-
-class SingleNetworkCallViewModel(private val apiHelper: ApiHelper) : ViewModel() {
-
-    init {
-        fetchUsers()
-    }
-
-    private fun fetchUsers() {
-        viewModelScope.launch {
-            apiHelper.getUsers()
-                .flowOn(Dispatchers.IO)
-                .catch { e ->
-                    // handle exception
-                }
-                .collect { value ->
-                    Timber.e(value.last())
-                }
-        }
-    }
-
-}
-
 
 //CustomFilterChip
 /*Box(modifier = Modifier.padding( start = 12.dp)) {

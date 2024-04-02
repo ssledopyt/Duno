@@ -11,7 +11,7 @@ var formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 class User : ArrayList<ApiUser>()
 data class ApiUser(
     @SerializedName("user_id")
-    val id: Int = 0,
+    val userId: Int = 0,
     @SerializedName("name")
     val userName: String = "",
     @SerializedName("second_name")
@@ -26,11 +26,22 @@ data class ApiUser(
     val userPassword: String = "",
     @SerializedName("created_at")
     val userCreatedAt: LocalDate = LocalDate.parse("31-12-2018", formatter),
-)
+){
+    companion object{
+        val userId = 0
+        val userName = "llfa"
+        val userSecondName = "DSF"
+        val userNickname = "42433"
+        val userPhone = "333"
+        val userEmail = "32"
+        val userPassword = "424"
+        val userCreatedAt = LocalDate.parse("31-12-2028", formatter)
+    }
+}
 
 data class ApiMeeting(
     @SerializedName("meeting_id")
-    val id: Int = 0,
+    val MeetingId: Int = 0,
     @SerializedName("title")
     val meetingTitle: String = "",
     @SerializedName("game")
@@ -53,7 +64,7 @@ data class ApiMeeting(
 
 data class ApiGenre(
     @SerializedName("genre_id")
-    val id: Int = 0,
+    val genreId: Int = 0,
     @SerializedName("name")
     val gameGenre: String = ""
 )

@@ -4,11 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.duno.db.ApiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
-class MeetingViewModel : ViewModel() {
+class MeetingViewModel @Inject constructor(private val repository: MeetingRepositoryImpl):ViewModel(){
     private val _meetingList = MutableLiveData(listOf<Meeting>())
     val meetingList: LiveData<List<Meeting>> = _meetingList
 

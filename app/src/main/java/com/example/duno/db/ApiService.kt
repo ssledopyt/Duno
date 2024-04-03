@@ -7,6 +7,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -36,10 +37,10 @@ interface ApiService {
     ): List<ApiUser>
 
     //Найти встречу
-    @GET("/meeting")
+    @GET("/meeting/{meetingID}")
     suspend fun getMeeting(
-        @Query("meeting_id") meetingID: Int?,
-    ): List<Meeting>
+        @Path("meetingID") meetingID: Int?,
+    ): ApiMeeting
 
     //Создать встречу
     @POST("/meeting")

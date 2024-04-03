@@ -19,6 +19,14 @@ class ApiRepository @Inject constructor(private val apiService: ApiService) :Api
         emit(DataStatus.error(it.message.toString()))
     }
 
+    override fun getMeeting(meetingID: Int) = flow {
+        emit(DataStatus.loading())
+        val meetings =  apiService.getMeeting(meetingID)
+        emit(DataStatus.success(meetings))
+    }.catch {
+        emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
+    }
+
     suspend fun getMoreUsers() = flow {
         emit(apiService.getMoreUsers())
     }
@@ -29,11 +37,12 @@ class ApiRepository @Inject constructor(private val apiService: ApiService) :Api
 
 }
 
-val apiService = ApiRepository(BDBuilder.apiService)
 
 interface ApiHelper {
 
     fun getUser(nickname: String): Flow<DataStatus<ApiUser>>
+
+    fun getMeeting(meetingID: Int): Flow<DataStatus<ApiMeeting>>
 
  //   fun getMoreUsers(): Flow<List<ApiUser>>
 

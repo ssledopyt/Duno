@@ -1,12 +1,13 @@
 package com.example.duno.data
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.google.gson.annotations.SerializedName
+import dagger.Component
 import java.util.Date
-@Stable
+
+
 data class Meeting(
     //val id: Int,
     @SerializedName("title")
@@ -20,7 +21,3 @@ data class Meeting(
     val createdAt: Date,
     val closedAt: Date*/
 )
-
-/*private class MutableAddEditMeeting : Meeting {
-    override var title: String by mutableStateOf("")
-}*/

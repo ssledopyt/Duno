@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
+
 var formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
 class User : ArrayList<ApiUser>()
@@ -39,9 +40,10 @@ data class ApiUser(
     }
 }
 
+//@Serializable
 data class ApiMeeting(
     @SerializedName("meeting_id")
-    val MeetingId: Int = 0,
+    val meetingId: Int = 0,
     @SerializedName("title")
     val meetingTitle: String = "",
     @SerializedName("game")
@@ -53,14 +55,27 @@ data class ApiMeeting(
     @SerializedName("status")
     val meetingStatus: String = "",
     @SerializedName("geo_marker")
-    val meetingGeoMarker: Point,
+    val meetingGeoMarker: String,
     @SerializedName("count_players")
     val meetingCountPlayers: Int = 0,
     @SerializedName("created_at")
     val meetingCreated: LocalDate = LocalDate.parse("31-12-2018", formatter),
     @SerializedName("closed_at")
     val meetingClosed: LocalDate = LocalDate.parse("31-12-2018", formatter)
-)
+){
+    companion object Ilya{
+        val meetingId = 0
+        val meetingTitle = "llfa"
+        val meetingGame = "DSF"
+        val meetingBody = "42433"
+        val meetingOrganizer = "ha"
+        val meetingStatus = true
+        val meetingGeoMarker = Point(55.963143, 38.044838)
+        val meetingCountPlayers = 3
+        val meetingCreated = LocalDate.parse("31-12-2028", formatter)
+        val meetingClosed = LocalDate.parse("31-12-2028", formatter)
+    }
+}
 
 data class ApiGenre(
     @SerializedName("genre_id")

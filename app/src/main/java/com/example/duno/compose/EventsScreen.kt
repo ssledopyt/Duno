@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,12 +48,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.duno.data.Meeting
-import com.example.duno.data.MeetingViewModel
 import com.example.duno.db.ApiHelper
+import com.example.duno.db.ApiMeeting
+import com.example.duno.db.DataStatus
 import com.example.duno.ui.LargeDp
 import com.example.duno.ui.SmallDp
 import com.example.duno.ui.TinyDp
@@ -68,7 +71,7 @@ import timber.log.Timber
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsScreen(mainViewModel: MainViewModel = viewModel()) {
+fun EventsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,7 +112,7 @@ fun EventsScreen(mainViewModel: MainViewModel = viewModel()) {
             .padding(top = TinyDp)
             .padding(horizontal = TinyDp)){
             //lateinit var viewModel: MainViewModel = HiltViewModelFactory()
-            
+
             
             val messages = mutableListOf(
                 Meeting("twtw"),
@@ -124,11 +127,28 @@ fun EventsScreen(mainViewModel: MainViewModel = viewModel()) {
             )
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
-            val meetingViewModel = MeetingViewModel()
-            Box(modifier = Modifier.align(Alignment.Center)){
-                Text(text = mainViewModel.userList)
+            //val meetingViewModel = MeetingViewModel()
+            val mainViewModel: MainViewModel = hiltViewModel()
+            var meetingUIState = mainViewModel.meetingList.observeAsState()
+            Card(modifier = Modifier.align(Alignment.Center).size(140.dp)){
+                Timber.e("Ya korobka?")
+                when (meetingUIState.value!!.status){
+                    DataStatus.Status.LOADING ->{
+                        Timber.e("Grujus")
+                    }
+                    DataStatus.Status.ERROR ->{
+                        Timber.e("Oshibka")
+                        Timber.e(meetingUIState.value!!.message)
+                    }
+                    DataStatus.Status.SUCCESS ->{
+                        val title = meetingUIState.value!!.data!!.meetingTitle
+                        Timber.e(title)
+                        Text(text = title)
+                    }
+                }
+
             }
-            EventsList(messages, listState, meetingViewModel)
+            //EventsList(messages, listState, meetingViewModel)
             FloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -147,7 +167,8 @@ fun EventsScreen(mainViewModel: MainViewModel = viewModel()) {
 fun EventsList(
     eventsList: List<Meeting>,
     listState: LazyListState,
-    viewModel: MeetingViewModel){
+    //viewModel: MeetingViewModel
+){
     LazyColumn(
         state = listState,
         modifier = Modifier

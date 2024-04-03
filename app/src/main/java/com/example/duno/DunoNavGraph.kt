@@ -37,7 +37,7 @@ import timber.log.Timber
 @Composable
 fun DunoNavGraph(
     navController: NavHostController,
-    startDestination: String = Map.route
+    startDestination: String = Events.route
 ){
     NavHost(
         navController = navController,

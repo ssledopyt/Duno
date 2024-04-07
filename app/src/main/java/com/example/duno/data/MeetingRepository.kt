@@ -1,25 +1,27 @@
 package com.example.duno.data
 
+import com.example.duno.db.ApiMeeting
 import com.example.duno.db.ApiService
 import com.example.duno.db.DataStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/*
-interface MeetingRepositoryInt {
-    fun getSelectedMeeting(): Flow<Meeting>
-    fun getAllMeeting(): Flow<List<Meeting>>
-    fun getGeoMeeting(uid: Long): Flow<Meeting>
-}*/
+interface MeetingRepositoryHelper {
+    fun getMeeting(meetingID: Int): Flow<DataStatus<ApiMeeting>>
+}
 
 @Singleton
-open class MeetingRepository @Inject constructor(private val apiService: ApiService){
+class MeetingRepository @Inject constructor(private val apiService: ApiService): MeetingRepositoryHelper{
 
-/*    suspend fun getMeetingList() = flow {
-            emit()
-            val result = apiService
-        }*/
+    override fun getMeeting(meetingID: Int) = flow {
+        emit(DataStatus.loading())
+        val meetings =  apiService.getMeeting(meetingID)
+        emit(DataStatus.success(meetings))
+    }.catch {
+        emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
+    }
 
 }

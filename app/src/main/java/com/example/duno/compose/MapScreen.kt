@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
 import com.example.duno.R
-import com.example.duno.databinding.FragmentContainerBinding
+import com.example.duno.databinding.FragmentContainerMapBinding
 import com.example.duno.ui.StandartDp
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -43,7 +43,7 @@ fun MapScreenUI(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        AndroidViewBinding(factory = FragmentContainerBinding::inflate)
+        AndroidViewBinding(factory = FragmentContainerMapBinding::inflate)
         var isExpanded by remember {mutableStateOf(false)}
         if (isExpanded) {
             AnimatedVisibility(

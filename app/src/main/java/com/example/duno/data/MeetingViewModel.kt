@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MeetingViewModel @Inject constructor(private val repository: MeetingRepositoryImpl):ViewModel(){
+class MeetingViewModel @Inject constructor(private val repository: MeetingRepository):ViewModel(){
     private val _meetingList = MutableLiveData(listOf<Meeting>())
     val meetingList: LiveData<List<Meeting>> = _meetingList
 

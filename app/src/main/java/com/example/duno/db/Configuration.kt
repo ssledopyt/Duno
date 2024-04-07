@@ -28,7 +28,7 @@ data class ApiUser(
     @SerializedName("created_at")
     val userCreatedAt: LocalDate = LocalDate.parse("31-12-2018", formatter),
 ){
-    companion object{
+    companion object Pavel{
         val userId = 0
         val userName = "llfa"
         val userSecondName = "DSF"

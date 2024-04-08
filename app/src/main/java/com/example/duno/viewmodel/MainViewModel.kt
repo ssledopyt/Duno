@@ -28,7 +28,6 @@ class MainViewModel @Inject constructor(private val repository: ApiRepository):V
     val userState = MutableStateFlow(DataStatus(status = DataStatus.Status.LOADING,ApiUser))
 
     init {
-        getMeeting(9)
     }
 
     fun getUser(nickname: String) = viewModelScope.launch {
@@ -39,15 +38,5 @@ class MainViewModel @Inject constructor(private val repository: ApiRepository):V
             .collect{
             //_meetingList.value=it
         }
-    }
-
-    fun getMeeting(meetingID: Int) = viewModelScope.launch {
-        repository.getMeeting(meetingID)
-            .catch {ex ->
-
-            }
-            .collect{
-                _meetingList.value=it
-            }
     }
 }

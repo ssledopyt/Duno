@@ -4,33 +4,54 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.duno.db.ApiMeeting
 import com.example.duno.db.ApiRepository
+import com.example.duno.db.DataStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MeetingViewModel @Inject constructor(private val repository: MeetingRepository):ViewModel(){
-    private val _meetingList = MutableLiveData(listOf<Meeting>())
-    val meetingList: LiveData<List<Meeting>> = _meetingList
+    private val _meetingList = MutableLiveData(DunoEventUIState(loading = true))
+    val meetingList : LiveData<DunoEventUIState>
+        get() = _meetingList
 
     init {
         getAllMeetings()
     }
 
-    private fun getAllMeetings(){
-        viewModelScope.launch {
+    private fun getAllMeetings() = viewModelScope.launch {
+        repository.getAllMeetings()
+            .catch {
+                _meetingList.value = DunoEventUIState(error = it.message)
+            }.collect{
+                _meetingList.value= DunoEventUIState(
+                    events = if (it.data.isNullOrEmpty()) emptyList() else it.data,
+                    loading = false
+                )
+            }
 
-        }
     }
 
-    fun updateMeetingList(newMeetings: List<Meeting>) {
-        _meetingList.value = _meetingList.value?.plus(newMeetings)
-    }
+/*    fun getMeeting(meetingID: Int) = viewModelScope.launch {
+        repository.getMeeting(meetingID)
+            .catch {ex ->
+
+            }
+            .collect{
+                _meetingList.value.data.find=it
+            }
+    }*/
 }
 
-
-// Функция обновления списка
-fun updateList(viewModel: MeetingViewModel, newMeetings: List<Meeting>) {
-    viewModel.updateMeetingList(newMeetings)
-}
+data class DunoEventUIState(
+    val events: List<ApiMeeting>? = emptyList(),
+    val selectedEmails: Set<Int> = emptySet(),
+    val openedEmail: ApiMeeting? = null,
+    val isDetailOnlyOpen: Boolean = false,
+    val loading: Boolean = false,
+    val error: String? = null
+)

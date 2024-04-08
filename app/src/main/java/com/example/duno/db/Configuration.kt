@@ -53,7 +53,7 @@ data class ApiMeeting(
     @SerializedName("organizer")
     val meetingOrganizer: String = "",
     @SerializedName("status")
-    val meetingStatus: String = "",
+    val meetingStatus: Boolean = true,
     @SerializedName("geo_marker")
     val meetingGeoMarker: String,
     @SerializedName("count_players")

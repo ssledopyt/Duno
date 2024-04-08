@@ -53,18 +53,19 @@ interface ApiService {
     ): String
 
     //Изменить информацию о встрече
-    @PUT("/meeting")
-    suspend fun changeMeetingInformation(
-        @Query("body") name: String?,
-        @Query("status") email: Boolean?,
-        @Query("geo_marker") password: Point?
-    ): Response<ApiMeeting>
+    @PUT("/meeting/{meetingID}")
+    suspend fun updateMeeting(
+        @Path("meetingID") meetingID: Int?,
+        @Query("body") body: String?,
+        @Query("status") status: Boolean?,
+        @Query("geo_marker") geoMarker: String?
+    ): String
 
     //Удалить встречу
-    @DELETE("/meeting")
+    @DELETE("/meeting/{meetingID}")
     suspend fun deleteMeeting(
-        @Query("meeting_id") meetingId: Int?
-    ): Response<ApiMeeting>
+        @Path("meeting_id") meetingId: Int?
+    ): String
 
     @GET("/more-users")
     suspend fun getMoreUsers(): List<ApiUser>

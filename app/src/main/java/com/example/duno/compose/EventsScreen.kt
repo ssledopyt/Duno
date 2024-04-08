@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -52,7 +53,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.duno.data.DunoEventUIState
 import com.example.duno.data.Meeting
+import com.example.duno.data.MeetingViewModel
 import com.example.duno.db.ApiHelper
 import com.example.duno.db.ApiMeeting
 import com.example.duno.db.DataStatus
@@ -71,7 +74,7 @@ import timber.log.Timber
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsScreen() {
+fun EventsScreen(meetingViewModel: MeetingViewModel = hiltViewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -111,44 +114,15 @@ fun EventsScreen() {
         Box(modifier = Modifier
             .padding(top = TinyDp)
             .padding(horizontal = TinyDp)){
-            //lateinit var viewModel: MainViewModel = HiltViewModelFactory()
-
-            
-            val messages = mutableListOf(
-                Meeting("twtw"),
-                Meeting("twtw"),
-                Meeting("twtw"),
-                Meeting("twtw"),
-                Meeting("twtw"),
-                Meeting("twtw"),
-                Meeting("twtw"),
-                Meeting("tw32tw"),
-                Meeting("twtw"),
-            )
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
-            //val meetingViewModel = MeetingViewModel()
-            val mainViewModel: MainViewModel = hiltViewModel()
-            var meetingUIState = mainViewModel.meetingList.observeAsState()
-            Card(modifier = Modifier.align(Alignment.Center).size(140.dp)){
-                Timber.e("Ya korobka?")
-                when (meetingUIState.value!!.status){
-                    DataStatus.Status.LOADING ->{
-                        Timber.e("Grujus")
-                    }
-                    DataStatus.Status.ERROR ->{
-                        Timber.e("Oshibka")
-                        Timber.e(meetingUIState.value!!.message)
-                    }
-                    DataStatus.Status.SUCCESS ->{
-                        val title = meetingUIState.value!!.data!!.meetingTitle
-                        Timber.e(title)
-                        Text(text = title)
-                    }
-                }
-
+            var meetingUIState = meetingViewModel.meetingList.observeAsState().value
+            if (meetingUIState?.events.isNullOrEmpty()){
+                Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
-            //EventsList(messages, listState, meetingViewModel)
+            else {
+                EventsList(listState, meetingUIState)
+            }
             FloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -164,29 +138,9 @@ fun EventsScreen() {
 }
 
 @Composable
-fun EventsList(
-    eventsList: List<Meeting>,
-    listState: LazyListState,
-    //viewModel: MeetingViewModel
-){
-    LazyColumn(
-        state = listState,
-        modifier = Modifier
-            .fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        ){
-        items(eventsList) { event ->
-            EventsDetails(event = event)
-        }
-    }
-
-}
-
-@Composable
 fun EventsDetails(
     modifier: Modifier = Modifier,
-    event: Meeting
+    event: ApiMeeting
 ) {
     Card(
         modifier = modifier
@@ -195,7 +149,7 @@ fun EventsDetails(
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = event.title,
+                text = event.meetingTitle,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -220,6 +174,44 @@ fun EventsDetails(
         }
     }
 }
+
+@Composable
+fun EventsList(
+    listState: LazyListState,
+    meetingUIState: DunoEventUIState?
+) {
+    Timber.e("Second")
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Timber.e("Third")
+        items(meetingUIState!!.events!!) { event ->
+            EventsDetails(event = event)
+            /*when (meetingUIState){
+            DataStatus.Status.LOADING ->{
+                Timber.e("Grujus")
+            }
+            DataStatus.Status.ERROR ->{
+                Timber.e("Oshibka")
+                Timber.e(meetingUIState.value!!.message)
+            }
+            DataStatus.Status.SUCCESS ->{
+                Timber.e("first")
+                if (meetingUIState.value!!.data!!.isNotEmpty()){
+                    items(meetingUIState.value!!.data!!) { event ->
+                        EventsDetails(event = event)
+                    }
+                }
+            }
+        }*/
+        }
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -275,6 +267,7 @@ fun PreviewFilterChipGroup() {
 
         })
 }
+
 
 //CustomFilterChip
 /*Box(modifier = Modifier.padding( start = 12.dp)) {

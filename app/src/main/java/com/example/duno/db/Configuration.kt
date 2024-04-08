@@ -40,7 +40,7 @@ data class ApiUser(
     }
 }
 
-//@Serializable
+
 data class ApiMeeting(
     @SerializedName("meeting_id")
     val meetingId: Int = 0,

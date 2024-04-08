@@ -1,8 +1,8 @@
 package com.example.duno.db
 
-import com.example.duno.data.Meeting
 import com.yandex.mapkit.geometry.Point
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -42,9 +42,15 @@ interface ApiService {
         @Path("meetingID") meetingID: Int?,
     ): ApiMeeting
 
+    //Найти все встречи
+    @GET("/meeting")
+    suspend fun getAllMeetings(): List<ApiMeeting>
+
     //Создать встречу
     @POST("/meeting")
-    suspend fun createMeeting(meeting: ApiMeeting): Response<ApiMeeting>
+    suspend fun createMeeting(
+        @Body request: ApiMeeting
+    ): String
 
     //Изменить информацию о встрече
     @PUT("/meeting")
@@ -68,14 +74,9 @@ interface ApiService {
 
 }
 
-/*interface ApiHelper {
 
-    fun getUser(user: ApiUser): Flow<DataStatus<List<ApiUser>>>
-
-    fun getMoreUsers(): Flow<List<ApiUser>>
-
-    fun getUsersWithError(): Flow<List<ApiUser>>
-
+/*private fun JSONMeeting (meeting: ApiMeeting): JSONObject {
+    val jsonObject = JSONObject()
+    jsonObject.put("game_name", meeting.meetingGame)
+    return jsonObject
 }*/
-
-

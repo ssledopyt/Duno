@@ -23,10 +23,10 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".compose.MapScreen">
+                android:name=".compose.map.MapScreen">
         </activity>
         <activity
-                android:name=".compose.OYndxAuth">
+                android:name=".compose.auth.OYndxAuth">
         </activity>
     </application>
 

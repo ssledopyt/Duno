@@ -5,7 +5,7 @@
         android:layout_height="wrap_content"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:tag="yandex"
-        android:name="com.example.duno.compose.OYndxAuth"
+        android:name="com.example.duno.compose.auth.OYndxAuth"
         app:startDestination="@id/yndxauth">
         <Button
                 android:layout_width="wrap_content"

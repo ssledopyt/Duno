@@ -1,87 +1,70 @@
-package com.example.duno.compose
+package com.example.duno.compose.events
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.duno.compose.elements.PreviewFilterChipGroup
 import com.example.duno.data.DunoEventUIState
-import com.example.duno.data.Meeting
-import com.example.duno.data.MeetingViewModel
-import com.example.duno.db.ApiHelper
 import com.example.duno.db.ApiMeeting
-import com.example.duno.db.DataStatus
-import com.example.duno.ui.LargeDp
-import com.example.duno.ui.SmallDp
-import com.example.duno.ui.TinyDp
-import com.example.duno.viewmodel.MainViewModel
-import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
+import com.example.duno.ui.DunoSizes
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import com.example.duno.data.MeetingViewModelPreview
+import com.example.duno.ui.Colors
 
-@Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsScreen(meetingViewModel: MeetingViewModel = hiltViewModel()) {
+fun EventsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.inverseOnSurface)
             //       .verticalScroll(rememberScrollState())
             .semantics { contentDescription = "Events Screen" }
+            .background(color = Colors.es_Background),
+
     ) {
+
         var text by remember { mutableStateOf("") } // Query for SearchBar
         var active by remember { mutableStateOf(false) } // Active state for SearchBar
         SearchBar(modifier = Modifier
@@ -106,17 +89,20 @@ fun EventsScreen(meetingViewModel: MeetingViewModel = hiltViewModel()) {
             },
             trailingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = null)
-            }) {}
+            },
+        ) {}
 
-        Box(modifier = Modifier.padding(top = TinyDp, start = SmallDp)){
+        Box(modifier = Modifier.padding(top = DunoSizes.tinyDp, start = DunoSizes.smallDp)){
             PreviewFilterChipGroup()
         }
         Box(modifier = Modifier
-            .padding(top = TinyDp)
-            .padding(horizontal = TinyDp)){
+            .padding(top = DunoSizes.tinyDp)
+            .padding(horizontal = DunoSizes.tinyDp)){
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
-            var meetingUIState = meetingViewModel.meetingList.observeAsState().value
+            //val meetingViewModel: MeetingViewModel = hiltViewModel()
+            val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
+            var meetingUIState = meetingViewModel.meetingList
             if (meetingUIState?.events.isNullOrEmpty()){
                 Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
@@ -129,7 +115,8 @@ fun EventsScreen(meetingViewModel: MeetingViewModel = hiltViewModel()) {
                     .padding(15.dp),
                 onClick = {
                     coroutineScope.launch{ listState.animateScrollToItem(index = 0)  }
-                }
+                },
+                containerColor = Colors.es_PrimaryCard
             ) {
                 Icon(imageVector = Icons.Filled.KeyboardArrowUp,contentDescription = null)
             }
@@ -137,43 +124,6 @@ fun EventsScreen(meetingViewModel: MeetingViewModel = hiltViewModel()) {
     }
 }
 
-@Composable
-fun EventsDetails(
-    modifier: Modifier = Modifier,
-    event: ApiMeeting
-) {
-    Card(
-        modifier = modifier
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = event.meetingTitle,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            )
-            Spacer(Modifier.height(150.dp))
-            /*FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                image.tags.forEach { tag ->
-                    SuggestionChip(
-                        label = {
-                            Text(text = tag)
-                        },
-                        onClick = {},
-                    )
-                }
-            }*/
-            //Spacer(Modifier.height(8.dp))
-        }
-    }
-}
 
 @Composable
 fun EventsList(
@@ -189,7 +139,7 @@ fun EventsList(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Timber.e("Third")
-        items(meetingUIState!!.events!!) { event ->
+        items(meetingUIState!!.events) { event ->
             EventsDetails(event = event)
             /*when (meetingUIState){
             DataStatus.Status.LOADING ->{
@@ -213,61 +163,69 @@ fun EventsList(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterChipGroup(
-    items: List<String>,
-    defaultSelectedItemIndex:Int = 0,
-    selectedItemIcon: ImageVector = Icons.Filled.Done,
-    itemIcon: ImageVector = Icons.Filled.Build,
-    onSelectedChanged : (Int) -> Unit = {}
-){
-    var selectedItemIndex by remember { mutableStateOf(defaultSelectedItemIndex) }
-
-    LazyRow(userScrollEnabled = true,
-        modifier = Modifier.height(LargeDp),
-
+fun EventsDetails(
+    modifier: Modifier = Modifier,
+    event: ApiMeeting,
+    //onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxSize(),
+        colors = CardDefaults.cardColors(
+            containerColor = Colors.ss_BackGround,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Изображение игры
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = event.meetingTitle,
+                        style = MaterialTheme.typography.headlineMedium,
+                        maxLines = 1,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "${event.meetingGeoMarker}, ${event.meetingDate}",
+                        //style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Light,
+                        maxLines = 1,
 
-        items(items.size) { index: Int ->
-            FilterChip(
-                modifier = Modifier.padding(top = TinyDp, end = TinyDp),
-                selected = items[selectedItemIndex] == items[index],
-                onClick = {
-                    selectedItemIndex = index
-                    onSelectedChanged(index)
-                },
-                label = { Text(items[index]) },
-                leadingIcon = if (items[selectedItemIndex] == items[index]) {
-                    {
-                        Icon(
-                            imageVector = selectedItemIcon,
-                            contentDescription = "Localized Description",
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                } else {
-                    {
-                        Icon(
-                            imageVector = itemIcon,
-                            contentDescription = "Localized description",
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
+                    )
                 }
+            }
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = event.meetingBody,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Normal,
+                maxLines = 2
             )
         }
     }
 }
 
+
+
+@Preview
 @Composable
-fun PreviewFilterChipGroup() {
-    FilterChipGroup(items = listOf("Ближайшие мероприятия", "Без опыта", "Есть опыт", "Очень опытные"),
-        onSelectedChanged = {
-
-        })
+fun EventsScreenPreview(){
+    EventsScreen()
 }
-
 
 //CustomFilterChip
 /*Box(modifier = Modifier.padding( start = 12.dp)) {

@@ -1,4 +1,4 @@
-package com.example.duno.compose
+package com.example.duno.compose.map
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -27,8 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
 import com.example.duno.R
+import com.example.duno.data.DunoEventUIState
 import com.example.duno.databinding.FragmentContainerMapBinding
-import com.example.duno.ui.StandartDp
+import com.example.duno.ui.DunoSizes
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
@@ -38,8 +39,7 @@ import timber.log.Timber
 
 @Preview(apiLevel = 33)
 @Composable
-fun MapScreenUI(
-) {
+fun MapScreenUI() {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -71,14 +71,14 @@ fun MapScreenUI(
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(bottom = StandartDp, end = StandartDp - 6.dp),
+                        .padding(bottom = DunoSizes.standartDp, end = DunoSizes.standartDp - 6.dp),
                     onClick = {
                         isExpanded = true
                         Timber.e("Button True")
 
                     }
                 ){
-                    Icon(modifier = Modifier.size(StandartDp), imageVector = Icons.Filled.Add, contentDescription = null)
+                    Icon(modifier = Modifier.size(DunoSizes.standartDp), imageVector = Icons.Filled.Add, contentDescription = null)
                 }
             }
         }

@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName
 import com.yandex.mapkit.geometry.Point
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 
 var formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -48,6 +47,8 @@ data class ApiMeeting(
     val meetingTitle: String = "",
     @SerializedName("game")
     val meetingGame: String = "",
+    @SerializedName("genre")
+    val meetingGenre: String = "",
     @SerializedName("body")
     val meetingBody: String = "",
     @SerializedName("organizer")
@@ -58,18 +59,19 @@ data class ApiMeeting(
     val meetingGeoMarker: String,
     @SerializedName("count_players")
     val meetingCountPlayers: Int = 0,
-    @SerializedName("created_at")
-    val meetingCreated: LocalDate = LocalDate.parse("31-12-2018", formatter),
+    @SerializedName("date_of_the_meeting")
+    val meetingDate: LocalDate = LocalDate.parse("31-12-2018", formatter),
     @SerializedName("closed_at")
-    val meetingClosed: LocalDate = LocalDate.parse("31-12-2018", formatter)
+    val meetingClosed: LocalDate = LocalDate.parse("31-12-2018", formatter),
 ){
     companion object Ilya{
         val meetingId = 0
-        val meetingTitle = "llfa"
+        val meetingTitle = "Снаряжение в город Тильтазавр по ходу дела ещё в городе агромирf"
         val meetingGame = "DSF"
         val meetingBody = "42433"
         val meetingOrganizer = "ha"
         val meetingStatus = true
+        val meetingGenre = "Dnd"
         val meetingGeoMarker = Point(55.963143, 38.044838)
         val meetingCountPlayers = 3
         val meetingCreated = LocalDate.parse("31-12-2028", formatter)

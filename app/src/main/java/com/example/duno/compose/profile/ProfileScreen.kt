@@ -1,4 +1,4 @@
-package com.example.duno.compose
+package com.example.duno.compose.profile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -29,9 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.duno.ui.Colors
-import com.example.duno.ui.SmallDp
-import com.example.duno.ui.StandartDp
-import com.example.duno.ui.TinyDp
+import com.example.duno.ui.DunoSizes
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,7 +40,7 @@ fun ProfileScreen(
     modifier: Modifier*/
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().background(color = Colors.es_Background),
     ) {
         // Отображение имени и фамилии
         TopBarProfile()
@@ -66,7 +64,7 @@ fun UserEvents() {
             LazyColumn(
                 modifier = Modifier.padding(start = 16.dp, top = 8.dp),
                 content = {
-                    itemsIndexed(events) {index, event ->
+                    itemsIndexed(events) { index, event ->
                         EventItem(event)
                     }
                 }
@@ -81,7 +79,7 @@ fun AboutApp() {
     },
         border = BorderStroke(1.dp, Color.DarkGray),
         shape = RoundedCornerShape(4.dp),
-        modifier = Modifier.fillMaxWidth().padding(start = SmallDp, end = SmallDp).height(40.dp)
+        modifier = Modifier.fillMaxWidth().padding(start = DunoSizes.smallDp, end = DunoSizes.smallDp).height(40.dp)
         ) {
         Text(text = "Помощь")
     }
@@ -105,7 +103,7 @@ fun TopBarProfile(
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
                     .wrapContentWidth()
-                    .padding(top = StandartDp)
+                    .padding(top = DunoSizes.standartDp)
                 //modifier = modifier.align(Alignment.CenterHorizontally)
             )
             Text(
@@ -139,7 +137,7 @@ fun EventItem(event: Event) {
             )
             Text(
                 text = event.description,
-                modifier = Modifier.padding(top = TinyDp)
+                modifier = Modifier.padding(top = DunoSizes.tinyDp)
             )
         }
     }

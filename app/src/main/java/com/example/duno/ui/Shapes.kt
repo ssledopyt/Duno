@@ -20,17 +20,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-val Standart_CommonButtonHeight = 48.dp
-val Standart_CommonButtonWidht = 48.dp
-val Standart_FABHeight = 48.dp
-val Standart_FABWidht = 48.dp
+object DunoSizes {
+    val standartCommonButtonHeight = 48.dp
+    val standartCommonButtonWidht = 48.dp
+    val standartFABHeight = 48.dp
+    val standartFABWidht = 48.dp
 
-val TinyDp = 8.dp
-val SmallDp = 12.dp
-val StandartDp = 24.dp
-val MediumDp = 36.dp
-val LargeDp = 48.dp
-
+    val superTinyDp = 4.dp
+    val tinyDp = 8.dp
+    val smallDp = 12.dp
+    val standartDp = 24.dp
+    val mediumDp = 36.dp
+    val largeDp = 48.dp
+}
 
 
 val Shapes = Shapes(

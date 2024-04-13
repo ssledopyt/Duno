@@ -3,5 +3,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id ="@+id/fragment_container_oauth"
-        android:name="com.example.duno.compose.OYndxAuth">
+        android:name="com.example.duno.compose.auth.OYndxAuth">
 </androidx.fragment.app.FragmentContainerView>

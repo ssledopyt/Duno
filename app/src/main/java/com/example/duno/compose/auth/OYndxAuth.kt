@@ -1,4 +1,4 @@
-package com.example.duno.compose
+package com.example.duno.compose.auth
 
 import android.R
 import android.os.Bundle

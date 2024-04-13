@@ -5,12 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.duno.db.ApiMeeting
-import com.example.duno.db.ApiRepository
-import com.example.duno.db.DataStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,8 +44,25 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
     }*/
 }
 
+class MeetingViewModelPreview(){
+    val events = listOf<ApiMeeting>(
+        ApiMeeting(
+            meetingId = 43,
+            meetingGame = "Dnd",
+            meetingGenre = "RolePlay",
+            meetingStatus = true,
+            meetingTitle = "Tyapse",
+            meetingOrganizer = "Ilya",
+            meetingCountPlayers = 6,
+            meetingBody = "Allilya allilya allilayla",
+            meetingGeoMarker = "Krusa"
+        )
+    )
+    val meetingList = DunoEventUIState(events = events)
+}
+
 data class DunoEventUIState(
-    val events: List<ApiMeeting>? = emptyList(),
+    val events: List<ApiMeeting> = emptyList(),
     val selectedEmails: Set<Int> = emptySet(),
     val openedEmail: ApiMeeting? = null,
     val isDetailOnlyOpen: Boolean = false,

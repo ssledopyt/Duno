@@ -1,15 +1,6 @@
 package com.example.duno.compose.elements
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import com.example.duno.data.Meeting
-
+/*
 @Composable
 fun ReplyDockedSearchBar(
     meetings: List<Meeting>,
@@ -20,6 +11,7 @@ fun ReplyDockedSearchBar(
     var active by remember { mutableStateOf(false) }
     val searchResults = remember { mutableStateListOf<Meeting>() }
 
+*/
 /*    LaunchedEffect(query) {
         searchResults.clear()
         if (query.isNotEmpty()) {
@@ -36,5 +28,6 @@ fun ReplyDockedSearchBar(
                 }
             )
         }
-    }*/
-}
+    }*//*
+
+}*/

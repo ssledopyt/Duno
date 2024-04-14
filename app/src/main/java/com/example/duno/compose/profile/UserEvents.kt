@@ -1,4 +1,4 @@
-package com.example.duno.compose.events
+package com.example.duno.compose.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -26,15 +27,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -42,8 +38,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.duno.compose.elements.PreviewFilterChipGroup
 import com.example.duno.data.DunoEventUIState
 import com.example.duno.db.ApiMeeting
 import com.example.duno.ui.DunoSizes
@@ -53,55 +47,33 @@ import com.example.duno.data.MeetingViewModelPreview
 import com.example.duno.ui.Colors
 
 
+private var viewUserEvents = mutableStateOf("Мои мероприятия")
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsScreen() {
+fun UserEventsProfile(title:String) {
+    viewUserEvents.value = title
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.inverseOnSurface)
             //       .verticalScroll(rememberScrollState())
-            .semantics { contentDescription = "Events Screen" }
+            .semantics { contentDescription = "UserEventsProfile" }
             .background(color = Colors.es_Background),
 
     ) {
-
-        var text by remember { mutableStateOf("") } // Query for SearchBar
-        var active by remember { mutableStateOf(false) }
-        Box(modifier = Modifier.fillMaxWidth().background(color = Colors.md_Background).height(76.dp)){
-        SearchBar(modifier = Modifier
-            .fillMaxWidth(1f)
-            .align(Alignment.TopCenter)
-            .height(50.dp)
-            .offset(y = 6.dp)
-            .padding(horizontal = DunoSizes.tinyDp),
-            query = text,
-            onQueryChange = {
-                text = it
-            },
-            onSearch = {
-                active = false
-            },
-            active = active,
-            onActiveChange = {
-                active = it
-            },
-            placeholder = {
-                Text(text = "Поиск мероприятия",
-                    fontSize = 14.sp)
-            },
-            trailingIcon = {
-                Icon(imageVector = Icons.Filled.Search, contentDescription = null)
-            },
-            colors = SearchBarDefaults.colors(
-                containerColor = Colors.ss_BackGround,
-                dividerColor = Colors.ss_AccentColor
-                )
-        ) {}
-        }
-
-        Box(modifier = Modifier.padding(top = DunoSizes.tinyDp, start = DunoSizes.smallDp)){
-            PreviewFilterChipGroup()
+        Box(modifier = Modifier.fillMaxWidth()){
+            Button(onClick = { /*TODO*/ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Colors.es_Background,
+                    contentColor = Colors.ss_AccentColor
+                    )) {
+                Icon(imageVector = Icons.Filled.KeyboardArrowLeft,contentDescription = null)
+            }
+            Text(title,
+                modifier = Modifier.align(Alignment.Center),
+                style = MaterialTheme.typography.titleMedium)
         }
         Box(modifier = Modifier
             .padding(top = DunoSizes.tinyDp)
@@ -117,7 +89,7 @@ fun EventsScreen() {
             else {
                 EventsList(listState, meetingUIState)
             }
-            FloatingActionButton(
+            /*FloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(15.dp),
@@ -127,7 +99,7 @@ fun EventsScreen() {
                 containerColor = Colors.es_PrimaryCard
             ) {
                 Icon(imageVector = Icons.Filled.KeyboardArrowUp,contentDescription = null)
-            }
+            }*/
         }
     }
 }
@@ -146,26 +118,19 @@ fun EventsList(
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Timber.e("Third")
-        items(meetingUIState!!.events) { event ->
-            EventsDetails(event = event)
-            /*when (meetingUIState){
-            DataStatus.Status.LOADING ->{
-                Timber.e("Grujus")
+        Timber.e("UserEvents")
+        if (viewUserEvents.value == "Мои мероприятия"){
+            items(meetingUIState!!.events) { event ->
+                EventsDetails(event = event)
             }
-            DataStatus.Status.ERROR ->{
-                Timber.e("Oshibka")
-                Timber.e(meetingUIState.value!!.message)
+        }
+        else{
+            items(meetingUIState!!.favEvents) { event ->
+                //if event.nickname == TODO()
+
+                //EventsDetails(event = event)
             }
-            DataStatus.Status.SUCCESS ->{
-                Timber.e("first")
-                if (meetingUIState.value!!.data!!.isNotEmpty()){
-                    items(meetingUIState.value!!.data!!) { event ->
-                        EventsDetails(event = event)
-                    }
-                }
-            }
-        }*/
+
         }
     }
 }
@@ -231,39 +196,6 @@ fun EventsDetails(
 
 @Preview
 @Composable
-fun EventsScreenPreview(){
-    EventsScreen()
+fun UserEventsProfilePreview(){
+    UserEventsProfile("Мои мероприятия")
 }
-
-//CustomFilterChip
-/*Box(modifier = Modifier.padding( start = 12.dp)) {
-            var selected by remember { mutableStateOf(false) }
-            var text by rememberSaveable { mutableStateOf("") }
-            *//*TextField(
-                modifier = Modifier.size(140.dp,40.dp),
-                value = text,
-                onValueChange = { text = it },
-                label = { Text("Label") },
-                singleLine = true
-            )*//*
-            FilterChip(
-                modifier = Modifier.padding( end = 0.dp),
-                onClick = {
-                    selected = !selected
-                    Timber.d("DnD filter")
-                          },
-                label = { Text("DnD") },
-                leadingIcon = {
-                    Icon(
-                        Icons.Filled.Settings,
-                        contentDescription = "Localized description",
-                        Modifier.size(AssistChipDefaults.IconSize)
-                    )
-                },
-                selected = selected,
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = Colors.md_Primary,
-                    iconColor = Colors.md_Background,
-                )
-            )
-        }*/

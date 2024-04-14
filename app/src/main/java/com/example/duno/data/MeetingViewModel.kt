@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.duno.db.ApiLikes
 import com.example.duno.db.ApiMeeting
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
@@ -15,6 +16,10 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
     private val _meetingList = MutableLiveData(DunoEventUIState(loading = true))
     val meetingList : LiveData<DunoEventUIState>
         get() = _meetingList
+
+    private val _meetingListFavorite = MutableLiveData(DunoEventUIState(loading = true))
+    val meetingListFavorite : LiveData<DunoEventUIState>
+        get() = _meetingListFavorite
 
     init {
         getAllMeetings()
@@ -63,6 +68,7 @@ class MeetingViewModelPreview(){
 
 data class DunoEventUIState(
     val events: List<ApiMeeting> = emptyList(),
+    val favEvents: List<ApiLikes> = emptyList(),
     val selectedEmails: Set<Int> = emptySet(),
     val openedEmail: ApiMeeting? = null,
     val isDetailOnlyOpen: Boolean = false,

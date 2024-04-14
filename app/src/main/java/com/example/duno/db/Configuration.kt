@@ -59,7 +59,7 @@ data class ApiMeeting(
     val meetingGeoMarker: String,
     @SerializedName("count_players")
     val meetingCountPlayers: Int = 0,
-    @SerializedName("date_of_the_meeting")
+    @SerializedName("meeting_time")
     val meetingDate: LocalDate = LocalDate.parse("31-12-2018", formatter),
     @SerializedName("closed_at")
     val meetingClosed: LocalDate = LocalDate.parse("31-12-2018", formatter),
@@ -110,6 +110,13 @@ data class ApiGame(
     val gameTime: Byte = 0,
     @SerializedName("description")
     val gameDescription: String = ""
+)
+
+data class ApiLikes(
+    @SerializedName("nickname")
+    val nickname: String = "",
+    @SerializedName("meeting_id")
+    val meetingId: Int = 0,
 )
 
 

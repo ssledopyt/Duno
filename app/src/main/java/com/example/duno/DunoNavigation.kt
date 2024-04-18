@@ -19,10 +19,14 @@ interface DunoDestination {
 object DunoScreens {
     const val MAP_SCREEN = "Map"
     const val EVENTS_SCREEN = "Events"
-    const val USER_EVENTS_SCREEN = "user_events"
-    const val ADD_EDIT_EVENT_SCREEN = "addEditEvent"
     const val PROFILE_SCREEN = "Profile"
-    const val ABOUT_SCREEN = "about"
+    const val USER_EVENTS_SCREEN = "userEvents"
+    const val USER_FAVORITE_EVENTS_SCREEN = "userFavoriteEvents"
+    const val ADD_EDIT_EVENT_SCREEN = "addEditEvent"
+    const val ABOUT_EVENT_SCREEN = "aboutEvent"
+    const val SIGNUP_SCREEN = "signUp"
+    const val LOGIN_SCREEN = "login"
+    const val HELP_SCREEN = "helpScreen"
 }
 
 object Events : DunoDestination{

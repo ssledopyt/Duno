@@ -113,10 +113,10 @@ data class ApiGame(
 )
 
 data class ApiLikes(
-    @SerializedName("nickname")
-    val nickname: String = "",
+    /*    @SerializedName("nickname")
+        val nickname: String = "",*/
     @SerializedName("meeting_id")
-    val meetingId: Int = 0,
+    val meetingId: List<Int> = emptyList(),
 )
 
 

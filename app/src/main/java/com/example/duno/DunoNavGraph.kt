@@ -20,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.duno.compose.auth.LoginScreen
+import com.example.duno.compose.auth.RegistrationScreen
 import com.example.duno.compose.events.EventsScreen
 import com.example.duno.compose.map.MapScreenUI
 import com.example.duno.compose.profile.ProfileScreen
@@ -31,7 +33,7 @@ import timber.log.Timber
 @Composable
 fun DunoNavGraph(
     navController: NavHostController,
-    startDestination: String = Events.route
+    startDestination: String
 ){
     NavHost(
         navController = navController,
@@ -46,18 +48,37 @@ fun DunoNavGraph(
         composable(DunoScreens.PROFILE_SCREEN){
             ProfileScreen()
         }
+        composable(DunoScreens.LOGIN_SCREEN){
+            LoginScreen({},{})
+        }
+        composable(DunoScreens.SIGNUP_SCREEN){
+            RegistrationScreen({},{},{},{})
+        }
     }
 }
 
-@Preview
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun Screen(){
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val selectedDestination =
-        navBackStackEntry?.destination?.route ?: Events.route
+        navBackStackEntry?.destination?.route ?: DunoScreens.SIGNUP_SCREEN
+    if (selectedDestination == DunoScreens.SIGNUP_SCREEN){
+        DunoNavGraph(navController = navController, startDestination = selectedDestination)
+    }
+    else {
+        MainApp(selectedDestination, navController)
+    }
+}
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainApp(
+    selectedDestination: String,
+    navController: NavHostController
+) {
     Scaffold (
         topBar = {if (selectedDestination == DunoScreens.MAP_SCREEN) {
             TopAppBar(
@@ -93,14 +114,14 @@ fun Screen(){
 //                Icon(Icons.Filled.Add, contentDescription = "Add")
 //            }
 //        }
-        ) { innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             DunoNavGraph(
-                navController,
+                navController,selectedDestination
             )
         }
     }
@@ -161,3 +182,10 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         launchSingleTop = true
         //restoreState = true
     }
+
+
+@Preview
+@Composable
+fun ScreenPreview(){
+    Screen()
+}

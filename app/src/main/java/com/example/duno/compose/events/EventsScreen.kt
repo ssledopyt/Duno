@@ -44,12 +44,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.duno.compose.elements.PreviewFilterChipGroup
-import com.example.duno.data.DunoEventUIState
+import com.example.duno.viewmodel.DunoEventUIState
 import com.example.duno.db.ApiMeeting
 import com.example.duno.ui.DunoSizes
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import com.example.duno.data.MeetingViewModelPreview
+import com.example.duno.viewmodel.MeetingViewModelPreview
 import com.example.duno.ui.Colors
 
 

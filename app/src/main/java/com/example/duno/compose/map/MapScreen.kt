@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
 import com.example.duno.R
-import com.example.duno.data.DunoEventUIState
 import com.example.duno.databinding.FragmentContainerMapBinding
 import com.example.duno.ui.DunoSizes
 import com.yandex.mapkit.MapKitFactory

@@ -1,110 +1,213 @@
 package com.example.duno.compose.auth
 
 
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidViewBinding
-import androidx.fragment.app.FragmentManager
-import com.example.duno.databinding.ActivityYndxAuthBinding
-import timber.log.Timber
+import com.example.duno.compose.elements.HeaderText
+import com.example.duno.compose.elements.LoginTextField
 
-@Preview
 @Composable
-fun RegistrationScreen() {
-    val nameState = remember { mutableStateOf("") }
-    val emailState = remember { mutableStateOf("") }
-    val passwordState = remember { mutableStateOf("") }
-    val confirmPasswordState = remember { mutableStateOf("") }
-    var startNewActivity = remember {mutableStateOf(false)}
-
-    val activity = LocalContext.current
-    lateinit var binding: ActivityYndxAuthBinding
+fun RegistrationScreen(
+    onSignUpClick: () -> Unit,
+    onLoginClick: () -> Unit,
+    onPolicyClick: () -> Unit,
+    onPrivacyClick: () -> Unit,
+) {
+    val (firstName, onFirstNameChange) = rememberSaveable {
+        mutableStateOf("")
+    }
+    val (lastName, onLastNameChange) = rememberSaveable { mutableStateOf("") }
+    val (email, onEmailChange) = rememberSaveable { mutableStateOf("") }
+    val (password, onPasswordChange) = rememberSaveable { mutableStateOf("") }
+    val (confirmPassword, onConfirmPasswordChange) = rememberSaveable { mutableStateOf("") }
+    val (agree, onAgreeChange) = rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    var isPasswordSame by remember { mutableStateOf(false) }
+    val isFieldsNotEmpty = firstName.isNotEmpty() && lastName.isNotEmpty() &&
+            email.isNotEmpty() && password.isNotEmpty() &&
+            confirmPassword.isNotEmpty() && agree
 
 
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(defaultPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Регистрация",
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = nameState.value,
-            onValueChange = { nameState.value = it },
-            label = { Text("Имя") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = emailState.value,
-            onValueChange = { emailState.value = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = passwordState.value,
-            onValueChange = { passwordState.value = it },
-            label = { Text("Пароль") },
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = confirmPasswordState.value,
-            onValueChange = { confirmPasswordState.value = it },
-            label = { Text("Подтверждение пароля") },
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-
-            Timber.tag("kras").e("erw")
-                //navController.navigate(MainScreen.route)
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Зарегистрироваться")
-
+        AnimatedVisibility(isPasswordSame) {
+            Text(
+                "Пароли не совпадают!",
+                color = MaterialTheme.colorScheme.error,
+            )
         }
+        HeaderText(
+            text = "Регистрация",
+            modifier = Modifier.padding(vertical = defaultPadding)
+                .align(alignment = Alignment.Start)
+        )
+        LoginTextField(
+            value = firstName,
+            onValueChange = onFirstNameChange,
+            labelText = "Имя",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(defaultPadding))
+        LoginTextField(
+            value = lastName,
+            onValueChange = onLastNameChange,
+            labelText = "Фамилия",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(defaultPadding))
+        LoginTextField(
+            value = email,
+            onValueChange = onEmailChange,
+            labelText = "Почта",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(defaultPadding))
+        LoginTextField(
+            value = password,
+            onValueChange = onPasswordChange,
+            labelText = "Пароль",
+            modifier = Modifier.fillMaxWidth(),
+            keyboardType = KeyboardType.Password
+        )
+        Spacer(Modifier.height(defaultPadding))
+        LoginTextField(
+            value = confirmPassword,
+            onValueChange = onConfirmPasswordChange,
+            labelText = "Подтвердите пароль",
+            modifier = Modifier.fillMaxWidth(),
+            keyboardType = KeyboardType.Password
+        )
+        Spacer(Modifier.height(defaultPadding))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val privacyText = "Политикой конфиденциальности"
+            val policyText = "Условиями использования"
+            val annotatedString = buildAnnotatedString {
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
+                    append("Я согласен с")
+                }
+                append(" ")
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                    pushStringAnnotation(tag = privacyText, privacyText)
+                    append(privacyText)
+                }
+                append(" И ")
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                    pushStringAnnotation(tag = policyText, policyText)
+                    append(policyText)
+                }
+            }
 
-        AndroidViewBinding(factory = ActivityYndxAuthBinding::inflate){
+            Checkbox(agree, onAgreeChange)
+            ClickableText(
+                annotatedString,
+            ) { offset ->
+                annotatedString.getStringAnnotations(offset, offset).forEach {
+                    when (it.tag) {
+                        privacyText -> {
+                            Toast.makeText(context, "Политика конфиденциальности Text Clicked", Toast.LENGTH_SHORT)
+                                .show()
+                            onPrivacyClick()
+                        }
 
-            yndxauth.setOnClickListener{
-                
-                Timber.e("Button yandex!")
+                        policyText -> {
+                            Toast.makeText(context, "Условия использования Text Clicked", Toast.LENGTH_SHORT)
+                                .show()
+                            onPolicyClick()
+                        }
+                    }
+                }
             }
         }
-    }
-
-
-/*    LaunchedEffect(key1 = startNewActivity.value){
-        if(startNewActivity.value){
-            activity.startActivity(Intent(activity, OYndxAuth::class.java))
+        Spacer(Modifier.height(defaultPadding + 8.dp))
+        Button(
+            onClick = {
+                isPasswordSame = password != confirmPassword
+                if (!isPasswordSame) {
+                    onSignUpClick()
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = isFieldsNotEmpty,
+        ) {
+            Text("Регистрация")
         }
-    }*/
+        Spacer(Modifier.height(defaultPadding))
+        val singTx = "Войти"
+        val signInAnnotation = buildAnnotatedString {
+            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
+                append("Уже есть аккаунт?")
+            }
+            append("  ")
+            withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                pushStringAnnotation(singTx, singTx)
+                append(singTx)
+            }
 
+
+        }
+        ClickableText(
+            signInAnnotation,
+        ) { offset ->
+            signInAnnotation.getStringAnnotations(offset, offset).forEach {
+                if (it.tag == singTx) {
+                    Toast.makeText(context, "Sign in Clicked", Toast.LENGTH_SHORT).show()
+                    onLoginClick()
+                }
+            }
+        }
+
+    }
 }
+
+private val defaultPadding = 16.dp
+private val itemSpacing = 8.dp
+
+@Preview(showSystemUi = true)
+@Composable
+fun RegistrationScreenPreview(){
+    RegistrationScreen({}, {}, {}, {})
+}
+    /*    LaunchedEffect(key1 = startNewActivity.value){
+            if(startNewActivity.value){
+                activity.startActivity(Intent(activity, OYndxAuth::class.java))
+            }
+        }*/
+
 

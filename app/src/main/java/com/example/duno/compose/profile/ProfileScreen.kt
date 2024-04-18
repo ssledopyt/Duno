@@ -12,16 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.sharp.AccountBox
-import androidx.compose.material.icons.twotone.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -61,9 +55,9 @@ fun ProfileScreen(
         TopBarProfile()
         Spacer(Modifier.height(ProfileDefaultPadding))
         Column(modifier = Modifier.fillMaxWidth()) {
-            ClickableTextProfile(text = "Мои мероприятия", icon = Icons, onClick = { UserEventsProfile() })
-            ClickableTextProfile(text = "Избранное", icon = Icons, onClick = { UserEventsProfile() })
-            ClickableTextProfile(text = "Архив событий", icon = Icons, onClick = { UserEventsProfile() })
+            ClickableTextProfile(text = "Мои мероприятия", icon = Icons, onClick = { UserEventsProfile("Мои мероприятия") })
+            ClickableTextProfile(text = "Избранное", icon = Icons, onClick = { UserEventsProfile("Избранное") })
+            ClickableTextProfile(text = "Архив событий", icon = Icons, onClick = { UserEventsProfile("Архив событий") })
         }
         Spacer(Modifier.height(ProfileDefaultPadding))
         AboutApp()
@@ -216,7 +210,7 @@ val events = listOf(
 
 @Preview
 @Composable
-fun MainScreen() {
+fun ProfileScreenPreview() {
     ProfileScreen()
 }
 

@@ -15,8 +15,15 @@ interface ApiService {
     //Найти пользователя
     @GET("/user")
     suspend fun getUser(
-        @Query("nickname") name: String?,
+        @Path("nickname") name: String?,
     ): ApiUser
+
+    //Проверка пароля на корректность
+    @GET("/check_pass")
+    suspend fun checkPass(
+        @Query("nickname") name: String?,
+        @Query("password") password: String?,
+    ): Boolean
 
     //Создать пользователя
     @POST("/user")
@@ -66,6 +73,12 @@ interface ApiService {
     suspend fun deleteMeeting(
         @Path("meeting_id") meetingId: Int?
     ): String
+
+    //Понравившиеся встречи
+    @DELETE("/likes/{nickname}")
+    suspend fun userLikes(
+        @Path("nickname") nickname: String?
+    ): ApiLikes
 
     @GET("/more-users")
     suspend fun getMoreUsers(): List<ApiUser>

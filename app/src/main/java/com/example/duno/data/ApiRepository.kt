@@ -1,15 +1,19 @@
-package com.example.duno.db
+package com.example.duno.data
 
-import kotlinx.coroutines.Dispatchers
+import com.example.duno.db.ApiMeeting
+import com.example.duno.db.ApiService
+import com.example.duno.db.ApiUser
+import com.example.duno.db.DataStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
+//NOT WORKING APIREP -> NOT USING ANYWHERE
 @Singleton
-class ApiRepository @Inject constructor(private val apiService: ApiService) :ApiHelper {
+class ApiRepository @Inject constructor(private val apiService: ApiService) : ApiHelper {
 
     override fun getUser(nickname: String) = flow {
         emit(DataStatus.loading())

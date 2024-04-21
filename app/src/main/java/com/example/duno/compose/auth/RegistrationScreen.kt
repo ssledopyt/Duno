@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,25 +34,35 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.duno.compose.elements.HeaderText
 import com.example.duno.compose.elements.LoginTextField
+import com.example.duno.viewmodel.UserViewModel
 
 @Composable
 fun RegistrationScreen(
+    isLoggedIn: Boolean,
+    navController: NavController,
+    viewModel: UserViewModel,
+    goToMainScreen: () -> Unit,
     onSignUpClick: () -> Unit,
     onLoginClick: () -> Unit,
     onPolicyClick: () -> Unit,
     onPrivacyClick: () -> Unit,
 ) {
-    val (firstName, onFirstNameChange) = rememberSaveable {
-        mutableStateOf("")
+    if (isLoggedIn) {
+        goToMainScreen()
     }
+
+    val (firstName, onFirstNameChange) = rememberSaveable { mutableStateOf("") }
     val (lastName, onLastNameChange) = rememberSaveable { mutableStateOf("") }
+    val (nickname, onNicknameChange) = rememberSaveable { mutableStateOf("") }
     val (email, onEmailChange) = rememberSaveable { mutableStateOf("") }
     val (password, onPasswordChange) = rememberSaveable { mutableStateOf("") }
     val (confirmPassword, onConfirmPasswordChange) = rememberSaveable { mutableStateOf("") }
     val (agree, onAgreeChange) = rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     var isPasswordSame by remember { mutableStateOf(false) }
     val isFieldsNotEmpty = firstName.isNotEmpty() && lastName.isNotEmpty() &&
             email.isNotEmpty() && password.isNotEmpty() &&
@@ -88,6 +99,12 @@ fun RegistrationScreen(
             labelText = "Фамилия",
             modifier = Modifier.fillMaxWidth()
         )
+        LoginTextField(
+            value = nickname,
+            onValueChange = onNicknameChange,
+            labelText = "Никнейм",
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(Modifier.height(defaultPadding))
         LoginTextField(
             value = email,
@@ -112,7 +129,7 @@ fun RegistrationScreen(
             keyboardType = KeyboardType.Password
         )
         Spacer(Modifier.height(defaultPadding))
-        Row(
+/*        Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -154,13 +171,22 @@ fun RegistrationScreen(
                     }
                 }
             }
-        }
+        }*/
         Spacer(Modifier.height(defaultPadding + 8.dp))
         Button(
             onClick = {
                 isPasswordSame = password != confirmPassword
+                val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
+                //val phoneRegex = "(\\+\\d( )?)?([-\\( ]\\d{3}[-\\) ])( )?\\d{3}-\\d{4}"
                 if (!isPasswordSame) {
-                    onSignUpClick()
+                    if (email.matches(emailRegex.toRegex())){
+                        onSignUpClick()
+                    }else{
+                        Toast.makeText(context, "Такой почты не существует!", Toast.LENGTH_SHORT).show()
+                        //TODO parol
+                    }
+                }else{
+                    Toast.makeText(context, "Пароли не совпадают!", Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier.fillMaxWidth(),
@@ -202,7 +228,7 @@ private val itemSpacing = 8.dp
 @Preview(showSystemUi = true)
 @Composable
 fun RegistrationScreenPreview(){
-    RegistrationScreen({}, {}, {}, {})
+    //RegistrationScreen({}, {}, {}, {})
 }
     /*    LaunchedEffect(key1 = startNewActivity.value){
             if(startNewActivity.value){

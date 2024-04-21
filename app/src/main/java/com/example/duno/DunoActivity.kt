@@ -16,8 +16,8 @@ class DunoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
-        Timber.e("Zdes1")
         MapKitFactory.setApiKey(BuildConfig.YAMAp)
+        Timber.e("Zdes1")
         setContent{
             Screen()
         }

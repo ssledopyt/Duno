@@ -16,16 +16,16 @@ interface ApiService {
     @GET("/user")
     suspend fun getUser(
         @Path("nickname") name: String?,
-    ): ApiUser
+    ): String
 
-    //Проверка пароля на корректность
+    //Проверка пароля на корректность (вход уже существующего пользователя)
     @GET("/check_pass")
     suspend fun checkPass(
         @Query("nickname") name: String?,
         @Query("password") password: String?,
-    ): Boolean
+    ): String
 
-    //Создать пользователя
+    //Создать нового пользователя
     @POST("/user")
     suspend fun createUser(
         @Query("name") name: String?,
@@ -33,7 +33,8 @@ interface ApiService {
         @Query("phone") phone: String?,
         @Query("email") email: String?,
         @Query("password") password: String?,
-    ): List<ApiUser>
+        @Query("nickname") nickname: String?,
+    ): String
 
     //Изменить данные пользователя
     @PUT("/user")
@@ -87,10 +88,3 @@ interface ApiService {
     suspend fun getUsersWithError(): List<ApiUser>
 
 }
-
-
-/*private fun JSONMeeting (meeting: ApiMeeting): JSONObject {
-    val jsonObject = JSONObject()
-    jsonObject.put("game_name", meeting.meetingGame)
-    return jsonObject
-}*/

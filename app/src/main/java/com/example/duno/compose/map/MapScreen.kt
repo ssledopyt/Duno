@@ -30,8 +30,6 @@ import com.example.duno.R
 import com.example.duno.databinding.FragmentContainerMapBinding
 import com.example.duno.ui.DunoSizes
 import com.yandex.mapkit.MapKitFactory
-import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.mapview.MapView
 import timber.log.Timber
 
@@ -42,7 +40,9 @@ fun MapScreenUI() {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        AndroidViewBinding(factory = FragmentContainerMapBinding::inflate)
+        AndroidViewBinding(factory = FragmentContainerMapBinding::inflate){
+            val fragment = fragmentContainerMap.getFragment<MapScreen>()
+        }
         var isExpanded by remember {mutableStateOf(false)}
         if (isExpanded) {
             AnimatedVisibility(
@@ -100,21 +100,20 @@ class MapScreen :Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.map_screen,container,false)
-        return view
+        return inflater.inflate(R.layout.map_screen, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapView = view.findViewById(R.id.mapview)
-        mapView.mapWindow.map.move(
+ /*       mapView.mapWindow.map.move(
             CameraPosition(
                 Point(55.751225, 37.629540),
-                /* zoom = */ 17.0f,
-                /* azimuth = */ 150.0f,
-                /* tilt = */ 30.0f
+                *//* zoom = *//* 17.0f,
+                *//* azimuth = *//* 150.0f,
+                *//* tilt = *//* 30.0f
             )
-        )
+        )*/
     }
 
     override fun onStart() {
@@ -126,6 +125,7 @@ class MapScreen :Fragment(){
 
     override fun onStop() {
         mapView.onStop()
+        Timber.e("Zdes5")
         MapKitFactory.getInstance().onStop()
         super.onStop()
     }

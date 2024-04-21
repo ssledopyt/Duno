@@ -1,5 +1,12 @@
 package com.example.duno.db
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
@@ -60,19 +68,11 @@ object BDBuilder {
             .create(ApiService::class.java)
 
 
-/*
     @Singleton
     @Provides
-    fun getRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(base)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() }),
+            produceFile = { context.preferencesDataStoreFile(Session.DATA) })
     }
-
-    @Provides
-    @Singleton
-    fun apiService(): ApiService = getRetrofit().create(ApiService::class.java)
-*/
-
 }

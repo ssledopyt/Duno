@@ -21,10 +21,12 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,13 +37,32 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.duno.R
 import com.example.duno.compose.elements.HeaderText
 import com.example.duno.compose.elements.LoginTextField
+import com.example.duno.viewmodel.UserViewModel
+import timber.log.Timber
 
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit, onSignUpClick: () -> Unit) {
+fun LoginScreen(
+    isLoggedIn: Boolean,
+    navController: NavController,
+    viewModel: UserViewModel,
+    goToMainScreen: () -> Unit,
+    onLoginClick: () -> Unit,
+    onSignUpClick: () -> Unit
+) {
+    if (isLoggedIn) {
+        goToMainScreen()
+    }
+    val snackbarHostState = remember { SnackbarHostState() }
+/*    if (viewModel.isUserLoggedIn) {
+        Timber.e("Im bot ${viewModel.isUserLoggedIn}")
+            goToMainScreen()
+    }*/
+
     val (userName, setUsername) = rememberSaveable {
         mutableStateOf("")
     }
@@ -56,13 +77,15 @@ fun LoginScreen(onLoginClick: () -> Unit, onSignUpClick: () -> Unit) {
     val context = LocalContext.current
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(defaultPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderText(
             text = "Войти",
-            modifier = Modifier.padding(vertical = defaultPadding)
+            modifier = Modifier
+                .padding(vertical = defaultPadding)
                 .align(alignment = Alignment.Start)
         )
         LoginTextField(
@@ -100,7 +123,14 @@ fun LoginScreen(onLoginClick: () -> Unit, onSignUpClick: () -> Unit) {
         }
         Spacer(Modifier.height(itemSpacing))
         Button(
-            onClick = onLoginClick,
+            onClick = {
+                viewModel.loginToServer(userName,password)
+                Timber.e("Working? nO?1 ${viewModel.isUserLoggedIn}")
+                if (viewModel.isUserLoggedIn){
+                    goToMainScreen()
+                    Timber.e("Working? nO?2 ${viewModel.isUserLoggedIn}")
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             enabled = isFieldsEmpty
         ) {
@@ -110,21 +140,13 @@ fun LoginScreen(onLoginClick: () -> Unit, onSignUpClick: () -> Unit) {
             onIconClick = { index ->
                 when (index) {
                     0 -> {
-                        Toast.makeText(context, "Instagram Login Click", Toast.LENGTH_SHORT).show()
-                    }
-
-                    1 -> {
-                        Toast.makeText(context, "Github Login Click", Toast.LENGTH_SHORT).show()
-
-                    }
-
-                    2 -> {
-                        Toast.makeText(context, "Google Login Click", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Яндекс", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
             onSignUpClick = onSignUpClick,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .wrapContentSize(align = Alignment.BottomCenter)
         )
 
@@ -159,7 +181,8 @@ fun AlternativeLoginOptions(
                         .size(32.dp)
                         .clickable {
                             onIconClick(index)
-                        }.clip(CircleShape)
+                        }
+                        .clip(CircleShape)
                 )
                 Spacer(Modifier.width(defaultPadding))
             }
@@ -186,5 +209,5 @@ private val itemSpacing = 8.dp
 @Preview(showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen({}, {})
+    //LoginScreen(isLoggedIn = false, {}, {},{})
 }

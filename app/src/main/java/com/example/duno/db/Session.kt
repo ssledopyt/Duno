@@ -17,10 +17,10 @@ class Session @Inject constructor(private val dataStore: DataStore<Preferences>)
         const val DATA = "Data"
         private const val IsLogin = "IsLogin"
         private const val NAME = "Name"
-        private const val PASSWORD = "Password"
+        private const val NICKNAME = "Nickname"
         val name = stringPreferencesKey(NAME)
         val isLogin = booleanPreferencesKey(IsLogin)
-        val password = stringPreferencesKey(PASSWORD)
+        val nickname = stringPreferencesKey(NICKNAME)
     }
 
     fun isUserLoggedIn(): Flow<Boolean> {
@@ -52,17 +52,17 @@ class Session @Inject constructor(private val dataStore: DataStore<Preferences>)
         }
     }
 
-    fun getPassword(): Flow<String> {
+    fun getNickname(): Flow<String> {
         return dataStore.data.catch {
             emit(emptyPreferences())
         }.map { value: Preferences ->
-            value[password] ?: ""
+            value[nickname] ?: ""
         }
     }
 
-    suspend fun setPassword(userPassWord: String) {
+    suspend fun setNickname(userNickname: String) {
         dataStore.edit { preference ->
-            preference[password] = userPassWord
+            preference[nickname] = userNickname
         }
     }
 }

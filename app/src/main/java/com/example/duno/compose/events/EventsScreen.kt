@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -30,6 +31,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.duno.compose.elements.PreviewFilterChipGroup
 import com.example.duno.viewmodel.DunoEventUIState
 import com.example.duno.db.ApiMeeting
@@ -51,6 +54,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import com.example.duno.viewmodel.MeetingViewModelPreview
 import com.example.duno.ui.Colors
+import com.example.duno.viewmodel.MeetingViewModel
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,14 +113,19 @@ fun EventsScreen() {
             .padding(horizontal = DunoSizes.tinyDp)){
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
-            //val meetingViewModel: MeetingViewModel = hiltViewModel()
-            val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
-            var meetingUIState = meetingViewModel.meetingList
+            val meetingViewModel: MeetingViewModel = hiltViewModel()
+            //val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
+
+            LaunchedEffect(true) {
+                delay(10000)  // the delay of 3 seconds
+            }
+            var meetingUIState = meetingViewModel.meetingList.value
+            Timber.e(meetingUIState?.toString())
             if (meetingUIState?.events.isNullOrEmpty()){
                 Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
             else {
-                EventsList(listState, meetingUIState)
+                EventsList(listState, meetingUIState!!)
             }
             FloatingActionButton(
                 modifier = Modifier
@@ -136,7 +146,7 @@ fun EventsScreen() {
 @Composable
 fun EventsList(
     listState: LazyListState,
-    meetingUIState: DunoEventUIState?
+    meetingUIState: DunoEventUIState
 ) {
     Timber.e("Second")
     LazyColumn(
@@ -147,25 +157,10 @@ fun EventsList(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Timber.e("Third")
-        items(meetingUIState!!.events) { event ->
-            EventsDetails(event = event)
-            /*when (meetingUIState){
-            DataStatus.Status.LOADING ->{
-                Timber.e("Grujus")
+        itemsIndexed(meetingUIState.events) { index, event ->
+            if(index != meetingUIState.events.lastIndex){
+                EventsDetails(event = event)
             }
-            DataStatus.Status.ERROR ->{
-                Timber.e("Oshibka")
-                Timber.e(meetingUIState.value!!.message)
-            }
-            DataStatus.Status.SUCCESS ->{
-                Timber.e("first")
-                if (meetingUIState.value!!.data!!.isNotEmpty()){
-                    items(meetingUIState.value!!.data!!) { event ->
-                        EventsDetails(event = event)
-                    }
-                }
-            }
-        }*/
         }
     }
 }
@@ -218,7 +213,7 @@ fun EventsDetails(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = event.meetingBody,
+                text = if (event.meetingBody.isEmpty()) "Пока пусто" else event.meetingBody,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Normal,
                 maxLines = 2

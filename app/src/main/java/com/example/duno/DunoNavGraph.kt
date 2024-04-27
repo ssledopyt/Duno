@@ -17,17 +17,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.duno.compose.auth.LoginScreen
 import com.example.duno.compose.auth.RegistrationScreen
 import com.example.duno.compose.events.EventsScreen
 import com.example.duno.compose.map.MapScreenUI
 import com.example.duno.compose.profile.ProfileScreen
+import com.example.duno.compose.profile.UserEventsProfile
 import com.example.duno.ui.Colors
+import com.example.duno.viewmodel.MeetingViewModel
 import com.example.duno.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 import timber.log.Timber
 
 //@Preview
@@ -36,14 +41,13 @@ import timber.log.Timber
 fun DunoNavGraph(
     userViewModel: UserViewModel,
     navController: NavHostController,
-    startDestination: String,
     isLoggedIn: Boolean,
     userName: String,
-    userPassword: String
+    userNickname: String
 ){
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = DunoScreens.LOGIN_SCREEN,
     ){
         composable(DunoScreens.EVENTS_SCREEN){
             EventsScreen()
@@ -54,8 +58,25 @@ fun DunoNavGraph(
             //username,is logged
         }
         composable(DunoScreens.PROFILE_SCREEN){
-            ProfileScreen()
+            ProfileScreen(
+                userViewModel,
+                navController,
+                goToSignUp = {
+                    navController.navigate(DunoScreens.LOGIN_SCREEN){popUpTo(DunoScreens.LOGIN_SCREEN){inclusive=true} }
+                },
+                goToUserEvents ={title ->
+                    navController.navigate("${DunoScreens.USER_EVENTS_SCREEN}/$title")
+                },
+                userName,
+                userNickname,
+            )
             //username,is logged
+        }
+        composable("${DunoScreens.USER_EVENTS_SCREEN}/{title}", arguments = listOf(navArgument("title") { type = NavType.StringType })
+        ){
+            it.arguments?.getString("title")?.let {title ->
+                UserEventsProfile(title = title, userNickname)
+            }
         }
         composable(DunoScreens.LOGIN_SCREEN){
             LoginScreen(
@@ -77,7 +98,10 @@ fun DunoNavGraph(
                 goToMainScreen = {
                     navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
                 },
-                {},
+                onSignUpClick = {
+                    userViewModel.userRegistration(it)
+
+                },
                 onLoginClick = {
                     navController.navigateSingleTopTo(DunoScreens.LOGIN_SCREEN)
             },{},{})
@@ -91,9 +115,10 @@ fun Screen(){
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val userViewModel: UserViewModel = hiltViewModel()
+    val meetingViewModel: MeetingViewModel = hiltViewModel()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
     val userName by userViewModel.userName.collectAsState()
-    val userPassword by userViewModel.userPassword.collectAsState()
+    val userNickname by userViewModel.userNickname.collectAsState()
     //val userState = mutableListOf(isLoggedIn, userName, userPassword)
 
     //TODO чтобы несколько раз не вылетал logged
@@ -102,7 +127,7 @@ fun Screen(){
     val selectedDestination =
         if (isLoggedIn) navBackStackEntry?.destination?.route ?: DunoScreens.EVENTS_SCREEN
         else navBackStackEntry?.destination?.route ?: DunoScreens.SIGNUP_SCREEN
-    MainApp(userViewModel, selectedDestination, navController, isLoggedIn, userName, userPassword)
+    MainApp(userViewModel, selectedDestination, navController, isLoggedIn, userName, userNickname)
 }
 
 
@@ -114,19 +139,19 @@ fun MainApp(
     navController: NavHostController,
     isLoggedIn: Boolean,
     userName: String,
-    userPassword: String
+    userNickname: String
 ) {
     Scaffold (
         topBar = {if (selectedDestination == DunoScreens.MAP_SCREEN) {
             TopAppBar(
-                modifier = Modifier.height(48.dp),
+                modifier = Modifier.height(60.dp),
                 colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Colors.md_Surface,
+                    titleContentColor = Colors.md_Background,
                 ),
                 title = {
                     Box(modifier = Modifier.fillMaxSize()){
-                        Text("Duno",
+                        Text("Мероприятия",
                             modifier = Modifier.align(Alignment.CenterStart)
                         )
                     }
@@ -162,7 +187,7 @@ fun MainApp(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             DunoNavGraph(
-                userViewModel, navController, selectedDestination, isLoggedIn, userName, userPassword
+                userViewModel, navController, isLoggedIn, userName, userNickname
             )
         }
     }
@@ -214,19 +239,31 @@ fun CommonUI(
 
 
 fun NavHostController.navigateSingleTopTo(route: String) =
-    this.navigate(route) {
-        popUpTo(
-            this@navigateSingleTopTo.graph.findStartDestination().id
-        ) {
-            saveState = true
+    if (route == DunoScreens.LOGIN_SCREEN) {
+        this.navigate(route) {
+            popUpTo(
+                route
+            ) {
+                saveState = false
+            }
+            launchSingleTop = true
+            restoreState = false
         }
-        launchSingleTop = true
-        //restoreState = true
+    }else{
+        this.navigate(route) {
+            popUpTo(
+                this@navigateSingleTopTo.graph.findStartDestination().id
+            ) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
     }
 
 
 @Preview
 @Composable
 fun ScreenPreview(){
-    Screen()
+    //MainApp(userViewModel, selectedDestination, navController, isLoggedIn, userName, userPassword)
 }

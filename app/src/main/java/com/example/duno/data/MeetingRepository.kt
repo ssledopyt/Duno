@@ -1,5 +1,6 @@
 package com.example.duno.data
 
+import com.example.duno.db.ApiLikes
 import com.example.duno.db.ApiMeeting
 import com.example.duno.db.ApiService
 import com.example.duno.db.DataStatus
@@ -57,12 +58,21 @@ class MeetingRepository @Inject constructor(private val apiService: ApiService):
         emit(DataStatus.error(it.message.toString()))
     }
 
+    override fun getUserLikes(nickname: String) = flow {
+        emit(DataStatus.loading())
+        val userLikes =  apiService.userLikes(nickname)
+        emit(DataStatus.success(userLikes))
+    }.catch {
+        emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
+    }
+
 }
 
 interface MeetingRepositoryHelper {
     fun getMeeting(meetingID: Int): Flow<DataStatus<ApiMeeting>>
     fun getAllMeetings(): Flow<DataStatus<List<ApiMeeting>>>
     fun createMeeting(meeting: ApiMeeting): Flow<DataStatus<String>>
+    fun getUserLikes(nickname: String): Flow<DataStatus<ApiLikes>>
     fun updateMeeting(meetingID: Int, meeting: ApiMeeting): Flow<DataStatus<String>>
     fun deleteMeeting(meetingID: Int): Flow<DataStatus<String>>
 }

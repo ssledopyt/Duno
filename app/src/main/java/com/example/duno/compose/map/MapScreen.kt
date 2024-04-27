@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,8 +29,11 @@ import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
 import com.example.duno.R
 import com.example.duno.databinding.FragmentContainerMapBinding
+import com.example.duno.ui.Colors
 import com.example.duno.ui.DunoSizes
 import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.mapview.MapView
 import timber.log.Timber
 
@@ -57,7 +61,10 @@ fun MapScreenUI() {
                     onClick = {
                         isExpanded = false
                         Timber.e("Button False")
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Colors.ss_BackGround,
+                        contentColor = Colors.ss_AccentColor)
                 ){
                     Text(text = "Организуем тут")
                 }
@@ -75,7 +82,9 @@ fun MapScreenUI() {
                         isExpanded = true
                         Timber.e("Button True")
 
-                    }
+                    },
+                    containerColor = Colors.es_Background,
+                    contentColor = Colors.ss_AccentColor
                 ){
                     Icon(modifier = Modifier.size(DunoSizes.standartDp), imageVector = Icons.Filled.Add, contentDescription = null)
                 }
@@ -106,14 +115,14 @@ class MapScreen :Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapView = view.findViewById(R.id.mapview)
- /*       mapView.mapWindow.map.move(
+        mapView.mapWindow.map.move(
             CameraPosition(
                 Point(55.751225, 37.629540),
-                *//* zoom = *//* 17.0f,
-                *//* azimuth = *//* 150.0f,
-                *//* tilt = *//* 30.0f
+                 17.0f,
+                 150.0f,
+                 30.0f
             )
-        )*/
+        )
     }
 
     override fun onStart() {

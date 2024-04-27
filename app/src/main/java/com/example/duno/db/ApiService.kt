@@ -13,10 +13,10 @@ import retrofit2.http.Query
 interface ApiService {
 
     //Найти пользователя
-    @GET("/user")
+    @GET("/user/{nickname}")
     suspend fun getUser(
         @Path("nickname") name: String?,
-    ): String
+    ): ApiUser
 
     //Проверка пароля на корректность (вход уже существующего пользователя)
     @GET("/check_pass")

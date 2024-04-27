@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -27,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,12 +39,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.duno.compose.events.EventsDetails
 import com.example.duno.viewmodel.DunoEventUIState
 import com.example.duno.db.ApiMeeting
 import com.example.duno.ui.DunoSizes
 import timber.log.Timber
 import com.example.duno.viewmodel.MeetingViewModelPreview
 import com.example.duno.ui.Colors
+import com.example.duno.viewmodel.MeetingViewModel
 
 
 private var viewUserEvents = mutableStateOf("Мои мероприятия")
@@ -49,7 +55,7 @@ private var viewUserEvents = mutableStateOf("Мои мероприятия")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserEventsProfile(title:String) {
+fun UserEventsProfile(title:String, userNickname: String) {
     viewUserEvents.value = title
     Column(
         modifier = Modifier
@@ -77,14 +83,16 @@ fun UserEventsProfile(title:String) {
             .padding(horizontal = DunoSizes.tinyDp)){
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
-            //val meetingViewModel: MeetingViewModel = hiltViewModel()
-            val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
-            var meetingUIState = meetingViewModel.meetingList
+            val meetingViewModel: MeetingViewModel = hiltViewModel()
+            //val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
+            val meetingUIState by meetingViewModel.meetingList.observeAsState()
+            Timber.e(meetingUIState?.events.toString())
             if (meetingUIState?.events.isNullOrEmpty()){
                 Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
             else {
-                EventsList(listState, meetingUIState)
+                meetingViewModel.getUserLikes(userNickname)
+                EventsList(listState, meetingUIState, userNickname)
             }
             /*FloatingActionButton(
                 modifier = Modifier
@@ -105,7 +113,8 @@ fun UserEventsProfile(title:String) {
 @Composable
 fun EventsList(
     listState: LazyListState,
-    meetingUIState: DunoEventUIState?
+    meetingUIState: DunoEventUIState?,
+    userNickname: String
 ) {
     Timber.e("Second")
     LazyColumn(
@@ -116,9 +125,28 @@ fun EventsList(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Timber.e("UserEvents")
-        if (viewUserEvents.value == "Мои мероприятия"){
-            items(meetingUIState!!.events) { event ->
-                EventsDetails(event = event)
+        when (viewUserEvents.value){
+            "Мои мероприятия" -> {
+                items(meetingUIState!!.events) {event ->
+                    if (event.meetingOrganizer == userNickname && event.meetingStatus)
+                        EventsDetails(event = event)
+                    else if(meetingUIState.events.isNullOrEmpty()){
+                        Text("У вас нет ваших мероприятий. Сначала создайте своё!")
+                    }
+                }
+            }
+            "Избранное" ->{
+                items(meetingUIState!!.events) {event ->
+                    if (meetingUIState.favEvents?.meetingId?.contains(event.meetingId) == true){
+                        EventsDetails(event = event)
+                    }
+                    else if(meetingUIState.events.isNullOrEmpty()){
+                        Text("У вас нет избранных мероприятий. Добавьте его, чтобы начать следить за встречами")
+                    }
+                }
+            }
+            "Архив событий" -> {
+
             }
         }
 /*        else{
@@ -194,5 +222,5 @@ fun EventsDetails(
 @Preview
 @Composable
 fun UserEventsProfilePreview(){
-    UserEventsProfile("Мои мероприятия")
+    UserEventsProfile("Мои мероприятия", "tah")
 }

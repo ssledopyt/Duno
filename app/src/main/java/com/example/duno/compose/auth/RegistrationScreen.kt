@@ -37,7 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.duno.compose.elements.HeaderText
 import com.example.duno.compose.elements.LoginTextField
+import com.example.duno.db.ApiUser
 import com.example.duno.viewmodel.UserViewModel
+import java.time.LocalDate
 
 @Composable
 fun RegistrationScreen(
@@ -45,7 +47,7 @@ fun RegistrationScreen(
     navController: NavController,
     viewModel: UserViewModel,
     goToMainScreen: () -> Unit,
-    onSignUpClick: () -> Unit,
+    onSignUpClick: (ApiUser) -> Unit,
     onLoginClick: () -> Unit,
     onPolicyClick: () -> Unit,
     onPrivacyClick: () -> Unit,
@@ -66,7 +68,8 @@ fun RegistrationScreen(
     var isPasswordSame by remember { mutableStateOf(false) }
     val isFieldsNotEmpty = firstName.isNotEmpty() && lastName.isNotEmpty() &&
             email.isNotEmpty() && password.isNotEmpty() &&
-            confirmPassword.isNotEmpty() && agree
+            confirmPassword.isNotEmpty()
+            //&& agree
 
 
     Column(
@@ -180,7 +183,19 @@ fun RegistrationScreen(
                 //val phoneRegex = "(\\+\\d( )?)?([-\\( ]\\d{3}[-\\) ])( )?\\d{3}-\\d{4}"
                 if (!isPasswordSame) {
                     if (email.matches(emailRegex.toRegex())){
-                        onSignUpClick()
+                        val user = ApiUser(
+                            userName = firstName,
+                            userSecondName = lastName,
+                            userNickname = nickname,
+                            userEmail = email,
+                            userPassword = password,
+                            userCreatedAt = LocalDate.now())
+                        onSignUpClick(user)
+                        if (viewModel.userState.value!!.isError){
+                            Toast.makeText(context, viewModel.userState.value!!.error, Toast.LENGTH_SHORT).show()
+                        }else{
+                            goToMainScreen()
+                        }
                     }else{
                         Toast.makeText(context, "Такой почты не существует!", Toast.LENGTH_SHORT).show()
                         //TODO parol

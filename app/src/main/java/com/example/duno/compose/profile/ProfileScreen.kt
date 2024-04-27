@@ -25,6 +25,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,42 +40,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.duno.ui.Colors
 import com.example.duno.ui.DunoSizes
+import com.example.duno.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-/*    user: User,
-    events: List<Event>,
-    modifier: Modifier*/
+    userViewModel: UserViewModel,
+    navController: NavController,
+    goToSignUp: ()->Unit,
+    goToUserEvents: (String) -> Unit,
+    userName: String,
+    userNickname: String
 ) {
+/*    var enabled by remember { mutableStateOf(true) }
+
+    LaunchedEffect(enabled) {
+        if (enabled) return@LaunchedEffect
+        else delay(1000L)
+        enabled = true
+    }*/
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Colors.es_Background),
     ) {
         // Отображение имени и фамилии
-        TopBarProfile()
+        TopBarProfile(userName,userNickname)
         Spacer(Modifier.height(ProfileDefaultPadding))
         Column(modifier = Modifier.fillMaxWidth()) {
-            ClickableTextProfile(text = "Мои мероприятия", icon = Icons, onClick = { UserEventsProfile("Мои мероприятия") })
-            ClickableTextProfile(text = "Избранное", icon = Icons, onClick = { UserEventsProfile("Избранное") })
-            ClickableTextProfile(text = "Архив событий", icon = Icons, onClick = { UserEventsProfile("Архив событий") })
+            ClickableTextProfile(text = "Мои мероприятия", icon = Icons, onClick = { goToUserEvents("Мои мероприятия") })
+            ClickableTextProfile(text = "Избранное", icon = Icons, onClick = { goToUserEvents("Избранное") })
+            ClickableTextProfile(text = "Архив событий", icon = Icons, onClick = { goToUserEvents("Архив событий") })
         }
         Spacer(Modifier.height(ProfileDefaultPadding))
         AboutApp()
         Spacer(Modifier.height(ProfileDefaultPadding))
         Box (modifier = Modifier.fillMaxSize()){
-            ExitUser()
+            ExitUser(userViewModel,goToSignUp)
         }
     }
 }
 
 
 @Composable
-fun ClickableTextProfile(text: String,icon: Icons, onClick: @Composable () -> Unit){
+fun ClickableTextProfile(text: String,icon: Icons, onClick: () -> Unit){
     Row {
         Row (
             modifier = Modifier
@@ -81,8 +99,11 @@ fun ClickableTextProfile(text: String,icon: Icons, onClick: @Composable () -> Un
         ){
             //Icon(imageVector = Icons.Rounded.DateRange, contentDescription = null)
             ClickableText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = DunoSizes.mediumDp),
                 text = AnnotatedString(text),
-                onClick = {})
+                onClick = {onClick()})
             Icon(imageVector = Icons.Outlined.KeyboardArrowRight, contentDescription = null)
         }
     }
@@ -105,8 +126,13 @@ fun AboutApp() {
 }
 
 @Composable
-fun ExitUser() {
+fun ExitUser(
+    userViewModel: UserViewModel,
+    goToSignUp: () -> Unit,
+) {
     Button(onClick = {
+        userViewModel.logOutUser()
+        goToSignUp()
     },
         shape = RoundedCornerShape(DunoSizes.standartDp),
         modifier = Modifier
@@ -125,6 +151,8 @@ fun ExitUser() {
 
 @Composable
 fun TopBarProfile(
+    userName: String,
+    userNickname: String,
 ) {
     Box(
         modifier = Modifier
@@ -134,7 +162,7 @@ fun TopBarProfile(
     ){
         Column {
             Text(
-                text = "${user.name} ${user.surname}",
+                text = userName,
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -144,7 +172,7 @@ fun TopBarProfile(
                 //modifier = modifier.align(Alignment.CenterHorizontally)
             )
             Text(
-                text = "${user.nickname}",
+                text = userNickname,
                 modifier = Modifier
                     .padding()
                     .align(Alignment.CenterHorizontally),
@@ -211,7 +239,7 @@ val events = listOf(
 @Preview
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    //ProfileScreen()
 }
 
 private val ProfileDefaultPadding = 12.dp

@@ -63,7 +63,7 @@ fun LoginScreen(
             goToMainScreen()
     }*/
 
-    val (userName, setUsername) = rememberSaveable {
+    val (userNickname, setNickname) = rememberSaveable {
         mutableStateOf("")
     }
     val (password, setPassword) = rememberSaveable {
@@ -72,7 +72,7 @@ fun LoginScreen(
     val (checked, onCheckedChange) = rememberSaveable {
         mutableStateOf(false)
     }
-    val isFieldsEmpty = userName.isNotEmpty() && password.isNotEmpty()
+    val isFieldsEmpty = userNickname.isNotEmpty() && password.isNotEmpty()
 
     val context = LocalContext.current
 
@@ -89,8 +89,8 @@ fun LoginScreen(
                 .align(alignment = Alignment.Start)
         )
         LoginTextField(
-            value = userName,
-            onValueChange = setUsername,
+            value = userNickname,
+            onValueChange = setNickname,
             labelText = "Имя пользователя",
             leadingIcon = Icons.Default.Person,
             modifier = Modifier.fillMaxWidth()
@@ -124,11 +124,10 @@ fun LoginScreen(
         Spacer(Modifier.height(itemSpacing))
         Button(
             onClick = {
-                viewModel.loginToServer(userName,password)
-                Timber.e("Working? nO?1 ${viewModel.isUserLoggedIn}")
+                viewModel.loginToServer(userNickname,password)
                 if (viewModel.isUserLoggedIn){
+                    Timber.e("Go to mainScreen with ${viewModel.isUserLoggedIn}")
                     goToMainScreen()
-                    Timber.e("Working? nO?2 ${viewModel.isUserLoggedIn}")
                 }
             },
             modifier = Modifier.fillMaxWidth(),

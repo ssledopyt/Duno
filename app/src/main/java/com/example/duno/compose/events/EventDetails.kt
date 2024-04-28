@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.duno.db.ApiMeeting
@@ -65,8 +66,8 @@ fun EventDetailsScreen(
                     ) {
                         EventStatusChip(event.events[eventId].meetingStatus)
                         EventInfoCard(event.events[eventId])
-                        EventDescription(event.events[eventId].meetingBody)
                         EventOrganizer(event.events[eventId].meetingOrganizer)
+                        EventDescription(event.events[eventId].meetingBody)
                         EventMapp(event.events[eventId].meetingGame)
                         EventDateTime(
                             event.events[eventId].meetingClosed.toString(),
@@ -186,8 +187,8 @@ fun EventDescription(description: String) {
 @Composable
 fun EventOrganizer(organizer: String) {
     Text(
-        text = organizer,
-        style = MaterialTheme.typography.headlineSmall,
+        text = "Организатор: $organizer",
+        style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(start = 16.dp, top = 16.dp),
         color = Colors.ss_MainColor
     )

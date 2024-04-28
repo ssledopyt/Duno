@@ -66,12 +66,12 @@ data class ApiMeeting(
 ){
     companion object Ilya{
         val meetingId = 0
-        val meetingTitle = "Снаряжение в город Тильтазавр по ходу дела ещё в городе агромирf"
-        val meetingGame = "DSF"
-        val meetingBody = "42433"
-        val meetingOrganizer = "ha"
+        val meetingTitle = "Поход в Тильтамир"
+        val meetingGame = "Тильтамир"
+        val meetingBody = "Собираемся в клубе около 12, может быть за час. Кто хочет пишите мне в телеграм. Возьмите с собой все нужные карты, фишки"
+        val meetingOrganizer = "Игорь"
         val meetingStatus = true
-        val meetingGenre = "Dnd"
+        val meetingGenre = "Dungeon and Dragons"
         val meetingGeoMarker = Point(55.963143, 38.044838)
         val meetingCountPlayers = 3
         val meetingCreated = LocalDate.parse("31-12-2028", formatter)

@@ -76,15 +76,18 @@ interface ApiService {
     ): String
 
     //Понравившиеся встречи
-    @DELETE("/likes/{nickname}")
-    suspend fun userLikes(
+    @GET("/likes/{nickname}")
+    suspend fun getUserLikes(
         @Path("nickname") nickname: String?
     ): ApiLikes
 
-    @GET("/more-users")
-    suspend fun getMoreUsers(): List<ApiUser>
+    //исправил с делит на гет
 
-    @GET("/error")
-    suspend fun getUsersWithError(): List<ApiUser>
+    @POST("/likes/{nickname}")
+    suspend fun putUserLikes(
+        @Path("nickname") nickname: String?
+    ): ApiLikes
+
+    //отправка Json
 
 }

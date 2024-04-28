@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.duno.compose.auth.LoginScreen
 import com.example.duno.compose.auth.RegistrationScreen
+import com.example.duno.compose.events.EventDetailsScreen
 import com.example.duno.compose.events.EventsScreen
 import com.example.duno.compose.map.MapScreenUI
 import com.example.duno.compose.profile.ProfileScreen
@@ -32,7 +33,6 @@ import com.example.duno.compose.profile.UserEventsProfile
 import com.example.duno.ui.Colors
 import com.example.duno.viewmodel.MeetingViewModel
 import com.example.duno.viewmodel.UserViewModel
-import kotlinx.coroutines.delay
 import timber.log.Timber
 
 //@Preview
@@ -50,7 +50,11 @@ fun DunoNavGraph(
         startDestination = DunoScreens.LOGIN_SCREEN,
     ){
         composable(DunoScreens.EVENTS_SCREEN){
-            EventsScreen()
+            EventsScreen(
+                goToEventDetails = { eventId ->
+                    navController.navigate("${DunoScreens.ABOUT_EVENT_SCREEN}/$eventId")
+                }
+            )
             //username,is logged
         }
         composable(DunoScreens.MAP_SCREEN){
@@ -76,6 +80,11 @@ fun DunoNavGraph(
         ){
             it.arguments?.getString("title")?.let {title ->
                 UserEventsProfile(title = title, userNickname)
+            }
+        }
+        composable("${DunoScreens.ABOUT_EVENT_SCREEN}/{eventId}", arguments = listOf(navArgument("eventId") { type = NavType.IntType})){
+            it.arguments?.getInt("eventId")?.let {eventId ->
+                EventDetailsScreen(eventId = eventId)
             }
         }
         composable(DunoScreens.LOGIN_SCREEN){

@@ -2,11 +2,13 @@ package com.example.duno.db
 
 import com.google.gson.annotations.SerializedName
 import com.yandex.mapkit.geometry.Point
+import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
 var formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
 
 class User : ArrayList<ApiUser>()
 data class ApiUser(
@@ -25,7 +27,7 @@ data class ApiUser(
     @SerializedName("password")
     val userPassword: String = "",
     @SerializedName("created_at")
-    val userCreatedAt: LocalDate = LocalDate.parse("31-12-2018", formatter),
+    val userCreatedAt:String,
 ){
     companion object Pavel{
         val userId = 0
@@ -35,7 +37,7 @@ data class ApiUser(
         val userPhone = "333"
         val userEmail = "32"
         val userPassword = "424"
-        val userCreatedAt = LocalDate.parse("31-12-2028", formatter)
+        val userCreatedAt = String
     }
 }
 
@@ -60,9 +62,9 @@ data class ApiMeeting(
     @SerializedName("count_players")
     val meetingCountPlayers: Int = 0,
     @SerializedName("meeting_time")
-    val meetingDate: LocalDate = LocalDate.parse("31-12-2018", formatter),
+    val meetingDate: String,
     @SerializedName("closed_at")
-    val meetingClosed: LocalDate = LocalDate.parse("31-12-2018", formatter),
+    val meetingClosed: String,
 ){
     companion object Ilya{
         val meetingId = 0
@@ -74,14 +76,14 @@ data class ApiMeeting(
         val meetingGenre = "Dungeon and Dragons"
         val meetingGeoMarker = Point(55.963143, 38.044838)
         val meetingCountPlayers = 3
-        val meetingCreated = LocalDate.parse("31-12-2028", formatter)
-        val meetingClosed = LocalDate.parse("31-12-2028", formatter)
+        val meetingCreated = String
+        val meetingClosed = String
     }
 }
 
 data class ApiGenre(
-    @SerializedName("genre_id")
-    val genreId: Int = 0,
+/*    @SerializedName("genre_id")
+    val genreId: Int = 0,*/
     @SerializedName("name")
     val gameGenre: String = ""
 )
@@ -98,18 +100,18 @@ data class ApiLocationOfSP(
 )
 
 data class ApiGame(
-    @SerializedName("game_id")
-    val gameId: Int = 0,
+/*    @SerializedName("game_id")
+    val gameId: Int = 0,*/
     @SerializedName("game_name")
     val gameName: String = "",
-    @SerializedName("genre")
+/*    @SerializedName("genre")
     val gameGenre: String = "",
     @SerializedName("count_players")
     val gameCountPlayers: Byte = 0,
     @SerializedName("game_time")
     val gameTime: Byte = 0,
     @SerializedName("description")
-    val gameDescription: String = ""
+    val gameDescription: String = ""*/
 )
 
 data class ApiLikes(

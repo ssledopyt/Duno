@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,7 @@ import com.example.duno.viewmodel.MeetingViewModel
 
 
 private var viewUserEvents = mutableStateOf("Мои мероприятия")
+private var getLikes = mutableStateOf(false)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,12 +88,15 @@ fun UserEventsProfile(title:String, userNickname: String) {
             val meetingViewModel: MeetingViewModel = hiltViewModel()
             //val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
             val meetingUIState by meetingViewModel.meetingList.observeAsState()
-            Timber.e(meetingUIState?.events.toString())
+            LaunchedEffect(!getLikes.value){
+                meetingViewModel.getUserLikes(userNickname)
+                getLikes.value = true
+            }
+            //Timber.e(meetingUIState?.events.toString())
             if (meetingUIState?.events.isNullOrEmpty()){
                 Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
             else {
-                meetingViewModel.getUserLikes(userNickname)
                 EventsList(listState, meetingUIState, userNickname)
             }
             /*FloatingActionButton(

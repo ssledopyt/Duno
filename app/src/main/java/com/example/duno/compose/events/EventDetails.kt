@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -21,14 +22,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.duno.db.ApiMeeting
 import com.example.duno.ui.Colors
 import com.example.duno.ui.DunoSizes
+import com.example.duno.viewmodel.MeetingViewModel
+import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,10 +44,10 @@ import com.example.duno.ui.DunoSizes
 fun EventDetailsScreen(
     eventId: Int,
     //navController: NavController,
-    //meetingViewModel: MeetingViewModel = hiltViewModel()
+    meetingViewModel: MeetingViewModel
 ) {
-    //var event = meetingViewModel.meetingList.observeAsState().value
-    val event = Eventt()
+    var event = meetingViewModel.meetingList.value
+    Timber.e("EventsDetail")
     Text(modifier = Modifier.fillMaxSize(), text = "ee")
     if (event == null) {
         Text(modifier = Modifier.fillMaxSize(), text = "???")
@@ -68,10 +76,10 @@ fun EventDetailsScreen(
                         EventInfoCard(event.events[eventId])
                         EventOrganizer(event.events[eventId].meetingOrganizer)
                         EventDescription(event.events[eventId].meetingBody)
-                        EventMapp(event.events[eventId].meetingGame)
+                        EventMapScreen(event.events[eventId].meetingGame)
                         EventDateTime(
                             event.events[eventId].meetingClosed.toString(),
-                            event.events[eventId].meetingCreated.toString())
+                            event.events[eventId].meetingDate.toString())
                         EventActions(event.events[eventId].meetingId.toString())
                     }
             }
@@ -81,7 +89,6 @@ fun EventDetailsScreen(
 
 private class Eventt{
     val event = ApiMeeting.Ilya
-    val events = listOf(event)
 }
 
 @Composable
@@ -107,14 +114,12 @@ fun EventActions(eventId: String) {
     }
 }
 @Composable
-fun EventDateTime(createdAt: String, startsAt: String) {
+fun EventDateTime(closedAt: String, startsAt: String) {
+    val closedAtDate = LocalDateTime.parse(closedAt)
+    val startsAtDate = LocalDateTime.parse(startsAt)
     Text(
-        text = "Дата и время:",
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.padding(start = 16.dp, top = 16.dp)
-    )
-    Text(
-        text = "Создано: $createdAt\nНачнется: $startsAt",
+        text = "Начнется: ${startsAtDate.dayOfMonth}.${startsAtDate.monthValue}.${startsAtDate.year} " +
+                "в ${startsAtDate.hour}:${startsAtDate.minute}",
         style = MaterialTheme.typography.headlineSmall,
         modifier = Modifier.padding(16.dp)
     )
@@ -122,13 +127,10 @@ fun EventDateTime(createdAt: String, startsAt: String) {
 
 
 @Composable
-fun EventMapp(location: String) {
+fun EventMapScreen(location: String) {
     // TODO: Implement map with location
-
-    // You can use Google Maps Compose library for this: https://developer.android.com/jetpack/androidx/compose/material/maps
-
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.size(120.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(text = "Карта недоступна")
@@ -137,7 +139,7 @@ fun EventMapp(location: String) {
 
 
 @Composable
-fun EventInfoCard(event: ApiMeeting.Ilya) {
+fun EventInfoCard(event: ApiMeeting) {
     Card(
         modifier = Modifier.fillMaxWidth()
             .padding(
@@ -197,5 +199,5 @@ fun EventOrganizer(organizer: String) {
 @Preview
 @Composable
 fun EventDetailsScreenPreview(){
-    EventDetailsScreen(eventId = 0)
+    //EventDetailsScreen(eventId = 0)
 }

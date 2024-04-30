@@ -40,6 +40,7 @@ import timber.log.Timber
 @Composable
 fun DunoNavGraph(
     userViewModel: UserViewModel,
+    meetingViewModel: MeetingViewModel,
     navController: NavHostController,
     isLoggedIn: Boolean,
     userName: String,
@@ -53,7 +54,9 @@ fun DunoNavGraph(
             EventsScreen(
                 goToEventDetails = { eventId ->
                     navController.navigate("${DunoScreens.ABOUT_EVENT_SCREEN}/$eventId")
-                }
+                },
+                userNickname,
+                meetingViewModel
             )
             //username,is logged
         }
@@ -84,7 +87,8 @@ fun DunoNavGraph(
         }
         composable("${DunoScreens.ABOUT_EVENT_SCREEN}/{eventId}", arguments = listOf(navArgument("eventId") { type = NavType.IntType})){
             it.arguments?.getInt("eventId")?.let {eventId ->
-                EventDetailsScreen(eventId = eventId)
+                Timber.e(eventId.toString())
+                EventDetailsScreen(eventId = eventId, meetingViewModel)
             }
         }
         composable(DunoScreens.LOGIN_SCREEN){
@@ -131,12 +135,11 @@ fun Screen(){
     //val userState = mutableListOf(isLoggedIn, userName, userPassword)
 
     //TODO чтобы несколько раз не вылетал logged
-
     Timber.tag("Login State activate").e("Is logged:${isLoggedIn.toString()}, userName:${userName.toString()}")
     val selectedDestination =
         if (isLoggedIn) navBackStackEntry?.destination?.route ?: DunoScreens.EVENTS_SCREEN
         else navBackStackEntry?.destination?.route ?: DunoScreens.SIGNUP_SCREEN
-    MainApp(userViewModel, selectedDestination, navController, isLoggedIn, userName, userNickname)
+    MainApp(userViewModel,meetingViewModel, selectedDestination, navController, isLoggedIn, userName, userNickname)
 }
 
 
@@ -144,6 +147,7 @@ fun Screen(){
 @Composable
 fun MainApp(
     userViewModel: UserViewModel,
+    meetingViewModel: MeetingViewModel,
     selectedDestination: String,
     navController: NavHostController,
     isLoggedIn: Boolean,
@@ -196,7 +200,7 @@ fun MainApp(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             DunoNavGraph(
-                userViewModel, navController, isLoggedIn, userName, userNickname
+                userViewModel,meetingViewModel, navController, isLoggedIn, userName, userNickname
             )
         }
     }

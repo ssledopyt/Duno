@@ -61,7 +61,7 @@ fun ProfileScreen(
 
     LaunchedEffect(enabled) {
         if (enabled) return@LaunchedEffect
-        else delay(1000L)
+        else delay(1000L)  
         enabled = true
     }*/
     Column(

@@ -1,5 +1,8 @@
 package com.example.duno.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.sql.Timestamp
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,6 +22,8 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
     private val _meetingList = MutableLiveData(DunoEventUIState(loading = true))
     val meetingList : LiveData<DunoEventUIState>
         get() = _meetingList
+
+    //var userLikes by mutableListOf<Int>(44)
 
     init {
         getAllMeetings()
@@ -34,7 +40,6 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
                     events = if (it.data.isNullOrEmpty()) emptyList() else it.data,
                 )
             }
-
     }
 
     fun getUserLikes(nickname:String) = viewModelScope.launch {
@@ -59,6 +64,33 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
         }
     }
 
+    fun putUserLikes(nickname: String, userList: List<Int>) = viewModelScope.launch {
+        Timber.tag("MeetingViewModel").e("get all meetings")
+        repository.putUserLikes(nickname, userList)
+            .catch {
+                _meetingList.value = DunoEventUIState(
+                    events = meetingList.value!!.events,
+                    favEvents = meetingList.value!!.favEvents,
+                    openedEvent = meetingList.value!!.openedEvent,
+                    isDetailOnlyOpen = meetingList.value!!.isDetailOnlyOpen,
+                    loading = meetingList.value!!.loading,
+                    error = it.message
+                )
+            }.collect{
+                Timber.tag("MeetingViewModel").e(it.data.toString())
+                var list = ApiLikes(meetingList.value!!.favEvents!!.meetingId.plus(userList))
+                _meetingList.value= DunoEventUIState(
+                    events = meetingList.value!!.events,
+                    favEvents = list,
+                    openedEvent = meetingList.value!!.openedEvent,
+                    isDetailOnlyOpen = meetingList.value!!.isDetailOnlyOpen,
+                    loading = meetingList.value!!.loading,
+                    error = meetingList.value!!.error
+                )
+            }
+    }
+
+
 /*    fun getMeeting(meetingID: Int) = viewModelScope.launch {
         repository.getMeeting(meetingID)
             .catch {ex ->
@@ -69,6 +101,7 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
             }
     }*/
 }
+
 
 class MeetingViewModelPreview(){
     val events = listOf<ApiMeeting>(
@@ -81,8 +114,10 @@ class MeetingViewModelPreview(){
             meetingOrganizer = "Ilya",
             meetingCountPlayers = 6,
             meetingBody = "Allilya allilya allilayla",
-            meetingGeoMarker = "Krusa"
-        )
+            meetingGeoMarker = "Krusa",
+            meetingDate = "Timestamp(System.currentTimeMillis())",
+            meetingClosed = "Timestamp(System.currentTimeMillis())",
+            )
     )
     val meetingList = DunoEventUIState(events = events)
 }

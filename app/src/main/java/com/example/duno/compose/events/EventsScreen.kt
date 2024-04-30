@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
@@ -35,7 +34,10 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,9 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.duno.compose.elements.PreviewFilterChipGroup
-import com.example.duno.compose.profile.user
 import com.example.duno.viewmodel.DunoEventUIState
 import com.example.duno.db.ApiMeeting
 import com.example.duno.ui.DunoSizes
@@ -60,13 +60,19 @@ import timber.log.Timber
 import com.example.duno.ui.Colors
 import com.example.duno.viewmodel.MeetingViewModel
 import kotlinx.coroutines.delay
+import java.time.LocalDateTime
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventsScreen(
     goToEventDetails: (Int) -> Unit,
+    userNickname: String,
+    meetingViewModel: MeetingViewModel
 ) {
+    var eventId = remember{ mutableIntStateOf(0) }
+    var click = remember { mutableStateOf(false)}
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -122,19 +128,16 @@ fun EventsScreen(
             .padding(horizontal = DunoSizes.tinyDp)){
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
-            val meetingViewModel: MeetingViewModel = hiltViewModel()
             //val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
-
-            LaunchedEffect(true) {
-                delay(10000)  // the delay of 3 seconds
-            }
+            var userLikes = remember {mutableListOf<Int>()}
             var meetingUIState = meetingViewModel.meetingList.value
-            Timber.e(meetingUIState?.toString())
+            meetingViewModel.getUserLikes(userNickname)
+            //Timber.e(meetingUIState?.toString())
             if (meetingUIState?.events.isNullOrEmpty()){
                 Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
             else {
-                EventsList(listState, meetingUIState!!, goToEventDetails = {goToEventDetails(0)})
+                EventsList(listState, meetingUIState!!, goToEventDetails = {goToEventDetails(eventId.intValue)}, eventId, userLikes)
             }
             FloatingActionButton(
                 modifier = Modifier
@@ -156,7 +159,9 @@ fun EventsScreen(
 fun EventsList(
     listState: LazyListState,
     meetingUIState: DunoEventUIState,
-    goToEventDetails: (Int) -> Unit
+    goToEventDetails: (Int) -> Unit,
+    eventId: MutableIntState,
+    userLikes: MutableList<Int>
 ) {
     Timber.e("Second")
     LazyColumn(
@@ -167,12 +172,17 @@ fun EventsList(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Timber.e("Third")
+        Timber.e(meetingUIState!!.favEvents?.meetingId?.toString())
         itemsIndexed(meetingUIState.events) { index, event ->
+            //Timber.e((meetingUIState.favEvents?.meetingId?.contains(event.meetingId)).toString())
             if(index != meetingUIState.events.lastIndex){
                 EventsDetails(
                     event = event,
-                    userLike = meetingUIState.favEvents?.meetingId?.contains(event.meetingId) == true,
-                    onClick = { goToEventDetails(event.meetingId) }
+                    userLike = userLikes.contains(event.meetingId),
+                    goToEventDetails = {goToEventDetails(eventId.intValue)},
+                    userLikes = userLikes,
+                    eventId = eventId,
+                    index = index
                 )
             }
         }
@@ -186,15 +196,23 @@ fun EventsDetails(
     modifier: Modifier = Modifier,
     event: ApiMeeting,
     userLike: Boolean,
-    onClick: () -> Unit
+    goToEventDetails: (Int) -> Unit,
+    userLikes: MutableList<Int>,
+    eventId: MutableIntState,
+    index: Int
 ) {
+    var userLikeEvent by remember { mutableStateOf(userLike) }
+    Timber.e(userLikes.toString())
     Card(
         modifier = modifier.fillMaxSize(),
         colors = CardDefaults.cardColors(
             containerColor = Colors.ss_BackGround,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        onClick = onClick
+        onClick = {
+            eventId.intValue = index
+            goToEventDetails(eventId.intValue)
+        }
     ) {
         Column(
             modifier = Modifier
@@ -211,17 +229,26 @@ fun EventsDetails(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row {
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(
                             text = event.meetingTitle,
                             style = MaterialTheme.typography.headlineMedium,
                             maxLines = 1,
                             fontWeight = FontWeight.Bold
                         )
-                        IconButton(onClick = {
-
+                        IconButton(modifier = Modifier,
+                            onClick = {
+                            if (!userLikeEvent){
+                                userLikes.add(event.meetingId)
+                                userLikeEvent=true
+                            }else{
+                                userLikes.find{ event.meetingId == it }?.let { userLikes.removeAt(userLikes.indexOf(it)) }
+                                userLikeEvent=false
+                            }
+                                Timber.e(userLikes.toString())
                         }) {
-                            if (userLike){
+                            if (userLikeEvent){
                                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
                             }
                             else{
@@ -230,13 +257,24 @@ fun EventsDetails(
                             }
                         }
                     }
-                    Text(
-                        text = "${event.meetingGeoMarker}, ${event.meetingDate}",
-                        //style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Light,
-                        maxLines = 1,
+                    val startsAtDate = LocalDateTime.parse(event.meetingDate)
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(
+                            text = event.meetingGeoMarker.toString(),
+                            //style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Light,
+                            maxLines = 1,
 
-                    )
+                            )
+                        Text(
+                            text = "${startsAtDate.dayOfMonth}.${startsAtDate.monthValue}.${startsAtDate.year} " +
+                                    "в ${startsAtDate.hour}:${startsAtDate.minute}",
+                            //style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Light,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
             Divider(modifier = Modifier.padding(vertical = 8.dp))

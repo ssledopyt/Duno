@@ -4,6 +4,7 @@ import com.yandex.mapkit.geometry.Point
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.Field
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -54,6 +55,14 @@ interface ApiService {
     @GET("/meeting")
     suspend fun getAllMeetings(): List<ApiMeeting>
 
+    //Получить все жанры
+    @GET("/genre")
+    suspend fun getAllGenre(): List<ApiGenre>
+
+    //Получить все игры
+    @GET("/games")
+    suspend fun getAllGames(): List<ApiGame>
+
     //Создать встречу
     @POST("/meeting")
     suspend fun createMeeting(
@@ -83,10 +92,11 @@ interface ApiService {
 
     //исправил с делит на гет
 
-    @POST("/likes/{nickname}")
+    @POST("/likes/{nickname}/")
     suspend fun putUserLikes(
-        @Path("nickname") nickname: String?
-    ): ApiLikes
+        @Path("nickname") nickname: String?,
+        @Field("items[]") list: List<Int>
+    ): String
 
     //отправка Json
 

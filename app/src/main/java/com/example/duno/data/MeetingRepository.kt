@@ -60,7 +60,15 @@ class MeetingRepository @Inject constructor(private val apiService: ApiService):
 
     override fun getUserLikes(nickname: String) = flow {
         emit(DataStatus.loading())
-        val userLikes =  apiService.userLikes(nickname)
+        val userLikes =  apiService.getUserLikes(nickname)
+        emit(DataStatus.success(userLikes))
+    }.catch {
+        emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
+    }
+
+    override fun putUserLikes(nickname: String, userLikes: List<Int>) = flow {
+        emit(DataStatus.loading())
+        val userLikes =  apiService.putUserLikes(nickname, userLikes)
         emit(DataStatus.success(userLikes))
     }.catch {
         emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
@@ -73,6 +81,7 @@ interface MeetingRepositoryHelper {
     fun getAllMeetings(): Flow<DataStatus<List<ApiMeeting>>>
     fun createMeeting(meeting: ApiMeeting): Flow<DataStatus<String>>
     fun getUserLikes(nickname: String): Flow<DataStatus<ApiLikes>>
+    fun putUserLikes(nickname: String, userLikes: List<Int>): Flow<DataStatus<String>>
     fun updateMeeting(meetingID: Int, meeting: ApiMeeting): Flow<DataStatus<String>>
     fun deleteMeeting(meetingID: Int): Flow<DataStatus<String>>
 }

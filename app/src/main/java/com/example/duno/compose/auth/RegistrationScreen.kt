@@ -189,7 +189,7 @@ fun RegistrationScreen(
                             userNickname = nickname,
                             userEmail = email,
                             userPassword = password,
-                            userCreatedAt = LocalDate.now())
+                            userCreatedAt = LocalDate.now().toString())
                         onSignUpClick(user)
                         if (viewModel.userState.value!!.isError){
                             Toast.makeText(context, viewModel.userState.value!!.error, Toast.LENGTH_SHORT).show()

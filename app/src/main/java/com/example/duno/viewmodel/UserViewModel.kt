@@ -8,6 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.duno.data.UserRepository
+import com.example.duno.db.ApiGame
+import com.example.duno.db.ApiGenre
 import com.example.duno.db.ApiMeeting
 import com.example.duno.db.ApiUser
 import com.example.duno.db.Session
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.Dispatcher
 import timber.log.Timber
+import java.sql.Timestamp
 import javax.inject.Inject
 
 
@@ -41,8 +44,16 @@ class UserViewModel @Inject constructor(
         .stateIn(scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = "")
 
     private val _userState = MutableLiveData(DunoUserUIState(loading = true))
-        val userState : LiveData<DunoUserUIState>
-            get() = _userState
+    val userState : LiveData<DunoUserUIState>
+        get() = _userState
+
+    private val _games = MutableLiveData<List<ApiGame>?>(emptyList())
+    val games : LiveData<List<ApiGame>?>
+        get() = _games
+
+    private val _genre = MutableLiveData<List<ApiGenre>?>(emptyList())
+    val genre : LiveData<List<ApiGenre>?>
+        get() = _genre
 
     var isUserLoggedIn by mutableStateOf(false)
     var userLoggedMessage by mutableStateOf("")
@@ -152,6 +163,26 @@ class UserViewModel @Inject constructor(
             Timber.tag("UserName in session").e(session.getUserName().toString())
         }
     }
+
+    fun getAllGenre() = viewModelScope.launch(Dispatchers.IO) {
+        repository.loadGenres().catch {
+            Timber.e(it.message)
+        }.collect{
+            Timber.e(it.data.toString())
+            _genre.value = it.data
+        }
+    }
+
+    fun getAllGame() = viewModelScope.launch(Dispatchers.IO) {
+        repository.loadGames().catch {
+            //nothing?
+            Timber.e(it.message)
+        }.collect{
+            Timber.e(it.data.toString())
+            _games.value = it.data
+        }
+    }
+
 }
 
 class UserViewModelPreview(){
@@ -166,13 +197,14 @@ class UserViewModelPreview(){
             meetingOrganizer = "Ilya",
             meetingCountPlayers = 6,
             meetingBody = "Allilya allilya allilayla",
-            meetingGeoMarker = "Krusa"
+            meetingGeoMarker = "Krusa",
+            meetingDate = "Timestamp(System.currentTimeMillis())",
+            meetingClosed = "Timestamp(System.currentTimeMillis())",
         )
     )
 
     val meetingList = DunoUserUIState(favEvents = favEvents, myEvents = myEvents)
 }
-
 
 data class DunoUserUIState(
     val userName: String = "",

@@ -88,6 +88,8 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.7.0-alpha09")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.chargemap.compose:numberpicker:latestVersion")
+    implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.9.0")
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")

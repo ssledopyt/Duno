@@ -37,6 +37,19 @@ interface ApiService {
         @Query("nickname") nickname: String?,
     ): String
 
+    @POST("/meeting")
+    suspend fun createMeeting(
+        @Query("title") title: String?,
+        @Query("game_name") gameName: String?,
+        @Query("body") body: String?,
+        @Query("status") status: Boolean?,
+        @Query("geo_marker") geoMarker: String?="",
+        @Query("user_nickname") nickname: String?,
+        @Query("count_players") countPlayers: Int?,
+        @Query("meeting_time") meetingTime: String?,
+        @Query("closed_at") closedAt: String?,
+    ): String
+
     //Изменить данные пользователя
     @PUT("/user")
     suspend fun changeUserInformation(
@@ -64,10 +77,10 @@ interface ApiService {
     suspend fun getAllGames(): List<ApiGame>
 
     //Создать встречу
-    @POST("/meeting")
+/*    @POST("/meeting")
     suspend fun createMeeting(
         @Body request: ApiMeeting
-    ): String
+    ): String*/
 
     //Изменить информацию о встрече
     @PUT("/meeting/{meetingID}")

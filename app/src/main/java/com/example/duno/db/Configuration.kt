@@ -44,7 +44,7 @@ data class ApiUser(
 
 data class ApiMeeting(
     @SerializedName("meeting_id")
-    val meetingId: Int = 0,
+    val meetingId: Int? = null,
     @SerializedName("title")
     val meetingTitle: String = "",
     @SerializedName("game")
@@ -58,13 +58,13 @@ data class ApiMeeting(
     @SerializedName("status")
     val meetingStatus: Boolean = true,
     @SerializedName("geo_marker")
-    val meetingGeoMarker: String,
+    val meetingGeoMarker: String = "",
     @SerializedName("count_players")
     val meetingCountPlayers: Int = 0,
     @SerializedName("meeting_time")
     val meetingDate: String,
     @SerializedName("closed_at")
-    val meetingClosed: String,
+    val meetingClosed: String = "",
 ){
     companion object Ilya{
         val meetingId = 0

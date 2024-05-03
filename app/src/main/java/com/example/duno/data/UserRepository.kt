@@ -3,6 +3,7 @@ package com.example.duno.data
 import com.example.duno.db.ApiGame
 import com.example.duno.db.ApiGenre
 import com.example.duno.db.ApiLikes
+import com.example.duno.db.ApiMeeting
 import com.example.duno.db.ApiService
 import com.example.duno.db.ApiUser
 import com.example.duno.db.DataStatus
@@ -64,6 +65,24 @@ class UserRepository @Inject constructor(private val apiService: ApiService): Us
         emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
     }
 
+    override fun createMeeting(meeting: ApiMeeting) = flow {
+        emit(DataStatus.loading())
+        val newMeeting =  apiService.createMeeting(
+            title = meeting.meetingTitle,
+            gameName = meeting.meetingGame,
+            body = meeting.meetingBody,
+            status = meeting.meetingStatus,
+            geoMarker = meeting.meetingGeoMarker,
+            nickname = meeting.meetingOrganizer,
+            countPlayers = meeting.meetingCountPlayers,
+            meetingTime = meeting.meetingDate,
+            closedAt = meeting.meetingClosed
+        )
+        emit(DataStatus.success(newMeeting))
+    }.catch {
+        emit(DataStatus.error(it.message.toString()))
+    }
+
 }
 
 
@@ -71,6 +90,8 @@ interface UserRepositoryHelper {
     fun getUser(nickname: String): Flow<DataStatus<ApiUser>>
     fun checkPass(nickname: String,  password: String = ""): Flow<DataStatus<String>>
     fun createUser(user: ApiUser): Flow<DataStatus<String>>
+    fun createMeeting(meeting: ApiMeeting): Flow<DataStatus<String>>
+
     fun loadGames():Flow<DataStatus<List<ApiGame>>>
     fun loadGenres():Flow<DataStatus<List<ApiGenre>>>
 

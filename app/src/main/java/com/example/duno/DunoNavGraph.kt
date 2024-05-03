@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.duno.compose.auth.LoginScreen
 import com.example.duno.compose.auth.RegistrationScreen
+import com.example.duno.compose.events.CreateEventScreen
 import com.example.duno.compose.events.EventDetailsScreen
 import com.example.duno.compose.events.EventsScreen
 import com.example.duno.compose.map.MapScreenUI
@@ -90,6 +91,12 @@ fun DunoNavGraph(
                 Timber.e(eventId.toString())
                 EventDetailsScreen(eventId = eventId, meetingViewModel)
             }
+        }
+        composable(DunoScreens.ADD_EDIT_EVENT_SCREEN){
+            CreateEventScreen(
+                //userViewModel
+            )
+            //username,is logged
         }
         composable(DunoScreens.LOGIN_SCREEN){
             LoginScreen(

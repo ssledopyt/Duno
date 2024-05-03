@@ -240,7 +240,7 @@ fun EventsDetails(
                         IconButton(modifier = Modifier,
                             onClick = {
                             if (!userLikeEvent){
-                                userLikes.add(event.meetingId)
+                                event.meetingId?.let { userLikes.add(it) }
                                 userLikeEvent=true
                             }else{
                                 userLikes.find{ event.meetingId == it }?.let { userLikes.removeAt(userLikes.indexOf(it)) }

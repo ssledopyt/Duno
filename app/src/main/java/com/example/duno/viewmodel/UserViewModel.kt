@@ -183,6 +183,16 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    fun createUserMeeting(meeting: ApiMeeting) = viewModelScope.launch(Dispatchers.IO) {
+        val meet = meeting.copy(meetingOrganizer = userNickname.value)
+        repository.createMeeting(meet).catch {
+            //nothing?
+            Timber.e(it.message)
+        }.collect{
+            Timber.e(it.data.toString())
+        }
+    }
+
 }
 
 class UserViewModelPreview(){

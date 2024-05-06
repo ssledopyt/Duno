@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,9 +39,13 @@ import com.yandex.mapkit.mapview.MapView
 import timber.log.Timber
 
 
-@Preview(apiLevel = 33)
 @Composable
-fun MapScreenUI() {
+fun MapScreenUI(
+    goToEvents: () -> Unit,
+) {
+    BackHandler {
+        goToEvents()
+    }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {

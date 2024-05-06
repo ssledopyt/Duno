@@ -10,6 +10,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.QueryMap
 
 interface ApiService {
 
@@ -43,7 +44,8 @@ interface ApiService {
         @Query("game_name") gameName: String?,
         @Query("body") body: String?,
         @Query("status") status: Boolean?,
-        @Query("geo_marker") geoMarker: String?="",
+        @Query("genre") genre: String?,
+        @Query("geo_marker") geoMarker: String,
         @Query("user_nickname") nickname: String?,
         @Query("count_players") countPlayers: Int?,
         @Query("meeting_time") meetingTime: String?,
@@ -76,6 +78,10 @@ interface ApiService {
     @GET("/games")
     suspend fun getAllGames(): List<ApiGame>
 
+    //Получить все места
+    @GET("/places")
+    suspend fun getAllPlaces(): List<ApiLocationOfSP>
+
     //Создать встречу
 /*    @POST("/meeting")
     suspend fun createMeeting(
@@ -88,7 +94,7 @@ interface ApiService {
         @Path("meetingID") meetingID: Int?,
         @Query("body") body: String?,
         @Query("status") status: Boolean?,
-        @Query("geo_marker") geoMarker: String?
+        @Query("geo_marker") geoMarker:List<Float>
     ): String
 
     //Удалить встречу
@@ -100,15 +106,22 @@ interface ApiService {
     //Понравившиеся встречи
     @GET("/likes/{nickname}")
     suspend fun getUserLikes(
-        @Path("nickname") nickname: String?
+        @Path("nickname") nickname: String
     ): ApiLikes
 
     //исправил с делит на гет
 
-    @POST("/likes/{nickname}/")
+    @POST("/likes/{nickname}/{eventId}")
     suspend fun putUserLikes(
-        @Path("nickname") nickname: String?,
-        @Field("items[]") list: List<Int>
+        @Path("nickname") nickname: String,
+        @Path("eventId") eventId: Int,
+        //@Field("items[]") list: List<Int>
+    ): String
+
+    @DELETE("/likes/{nickname}/{eventId}")
+    suspend fun deleteUserLikes(
+        @Path("nickname") nickname: String,
+        @Path("eventId") eventId: Int,
     ): String
 
     //отправка Json

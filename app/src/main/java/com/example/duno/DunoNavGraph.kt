@@ -1,5 +1,7 @@
 package com.example.duno
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.duno.compose.auth.LoginScreen
 import com.example.duno.compose.auth.RegistrationScreen
+import com.example.duno.compose.elements.LoadingScreen
 import com.example.duno.compose.events.CreateEventScreen
 import com.example.duno.compose.events.EventDetailsScreen
 import com.example.duno.compose.events.EventsScreen
@@ -45,35 +48,49 @@ fun DunoNavGraph(
     navController: NavHostController,
     isLoggedIn: Boolean,
     userName: String,
-    userNickname: String
+    userNickname: String,
+    selectedDestination: String
 ){
     NavHost(
         navController = navController,
         startDestination = DunoScreens.LOGIN_SCREEN,
     ){
         composable(DunoScreens.EVENTS_SCREEN){
+            //navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
+            val coroutineScope = rememberCoroutineScope()
             EventsScreen(
                 goToEventDetails = { eventId ->
                     navController.navigate("${DunoScreens.ABOUT_EVENT_SCREEN}/$eventId")
                 },
                 userNickname,
-                meetingViewModel
+                meetingViewModel,
+                userViewModel,
+                navController
             )
             //username,is logged
         }
         composable(DunoScreens.MAP_SCREEN){
-            MapScreenUI()
+            MapScreenUI(
+                goToEvents = {
+                    navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
+                }
+            )
             //username,is logged
         }
         composable(DunoScreens.PROFILE_SCREEN){
             ProfileScreen(
                 userViewModel,
-                navController,
                 goToSignUp = {
-                    navController.navigate(DunoScreens.LOGIN_SCREEN){popUpTo(DunoScreens.LOGIN_SCREEN){inclusive=true} }
+                    navController.navigateSingleTopTo(DunoScreens.LOGIN_SCREEN)
                 },
                 goToUserEvents ={title ->
                     navController.navigate("${DunoScreens.USER_EVENTS_SCREEN}/$title")
+                },
+                goToAddEvent ={
+                    navController.navigate(DunoScreens.ADD_EDIT_EVENT_SCREEN)
+                },
+                goToEvents = {
+                    navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
                 },
                 userName,
                 userNickname,
@@ -83,7 +100,13 @@ fun DunoNavGraph(
         composable("${DunoScreens.USER_EVENTS_SCREEN}/{title}", arguments = listOf(navArgument("title") { type = NavType.StringType })
         ){
             it.arguments?.getString("title")?.let {title ->
-                UserEventsProfile(title = title, userNickname)
+                UserEventsProfile(title = title,
+                    userNickname,
+                    meetingViewModel,
+                    navigateToProfile = {
+                        navController.popBackStack()
+                    },
+                    userViewModel = userViewModel)
             }
         }
         composable("${DunoScreens.ABOUT_EVENT_SCREEN}/{eventId}", arguments = listOf(navArgument("eventId") { type = NavType.IntType})){
@@ -94,7 +117,21 @@ fun DunoNavGraph(
         }
         composable(DunoScreens.ADD_EDIT_EVENT_SCREEN){
             CreateEventScreen(
-                //userViewModel
+                userViewModel,
+                goToEvents ={
+                    navController.previousBackStackEntry
+                },
+            )
+            //username,is logged
+        }
+        composable(DunoScreens.LOADING_SCREEN){
+            LoadingScreen(
+                meetingViewModel,
+                userViewModel,
+                userNickname,
+                navigateToEvents ={
+                    navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
+                },
             )
             //username,is logged
         }
@@ -104,7 +141,7 @@ fun DunoNavGraph(
                 navController,
                 userViewModel,
                 goToMainScreen = {
-                     navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
+                     navController.navigateSingleTopTo(DunoScreens.LOADING_SCREEN)
                 }, {},
                 onSignUpClick = {
                     navController.navigateSingleTopTo(DunoScreens.SIGNUP_SCREEN)
@@ -116,7 +153,7 @@ fun DunoNavGraph(
                 navController,
                 userViewModel,
                 goToMainScreen = {
-                    navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
+                    navController.navigateSingleTopTo(DunoScreens.LOADING_SCREEN)
                 },
                 onSignUpClick = {
                     userViewModel.userRegistration(it)
@@ -131,21 +168,35 @@ fun DunoNavGraph(
 
 
 @Composable
-fun Screen(){
-    val navController = rememberNavController()
+fun Screen(
+    navController: NavHostController = rememberNavController(),
+    userViewModel: UserViewModel = hiltViewModel(),
+    meetingViewModel: MeetingViewModel = hiltViewModel(),
+){
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val userViewModel: UserViewModel = hiltViewModel()
-    val meetingViewModel: MeetingViewModel = hiltViewModel()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
     val userName by userViewModel.userName.collectAsState()
     val userNickname by userViewModel.userNickname.collectAsState()
     //val userState = mutableListOf(isLoggedIn, userName, userPassword)
+    var selectedDestination = navBackStackEntry?.destination?.route ?: DunoScreens.LOGIN_SCREEN
+    LaunchedEffect(!isLoggedIn) {
+        //TODO чтобы несколько раз не вылетал logged
+        Timber.tag("Login State activate")
+            .e("Is logged:${isLoggedIn.toString()}, userName:${userName.toString()}")
+        selectedDestination = navBackStackEntry?.destination?.route ?: DunoScreens.SIGNUP_SCREEN
+//            if (isLoggedIn) navBackStackEntry?.destination?.route ?: DunoScreens.EVENTS_SCREEN
+            //else
 
-    //TODO чтобы несколько раз не вылетал logged
-    Timber.tag("Login State activate").e("Is logged:${isLoggedIn.toString()}, userName:${userName.toString()}")
-    val selectedDestination =
-        if (isLoggedIn) navBackStackEntry?.destination?.route ?: DunoScreens.EVENTS_SCREEN
-        else navBackStackEntry?.destination?.route ?: DunoScreens.SIGNUP_SCREEN
+    }
+    LaunchedEffect(isLoggedIn) {
+        //TODO чтобы несколько раз не вылетал logged
+        Timber.tag("Login State activate")
+            .e("Is logged:${isLoggedIn.toString()}, userName:${userName.toString()}")
+        selectedDestination = navBackStackEntry?.destination?.route ?: DunoScreens.LOADING_SCREEN
+//            if (isLoggedIn) navBackStackEntry?.destination?.route ?: DunoScreens.EVENTS_SCREEN
+        //else
+
+    }
     MainApp(userViewModel,meetingViewModel, selectedDestination, navController, isLoggedIn, userName, userNickname)
 }
 
@@ -161,6 +212,7 @@ fun MainApp(
     userName: String,
     userNickname: String
 ) {
+    val noBottom = listOf(DunoScreens.SIGNUP_SCREEN, DunoScreens.LOGIN_SCREEN, DunoScreens.LOADING_SCREEN, DunoScreens.ADD_EDIT_EVENT_SCREEN)
     Scaffold (
         topBar = {if (selectedDestination == DunoScreens.MAP_SCREEN) {
             TopAppBar(
@@ -181,8 +233,7 @@ fun MainApp(
         }
         },
         bottomBar = {
-            if (selectedDestination != DunoScreens.SIGNUP_SCREEN &&
-                selectedDestination != DunoScreens.LOGIN_SCREEN)
+            if (!noBottom.contains(selectedDestination))
             {
                 BottomAppBar(
                     modifier = Modifier.height(60.dp),
@@ -195,11 +246,6 @@ fun MainApp(
                 }
             }
         },
-//        floatingActionButton = {
-//            FloatingActionButton(onClick = {}) {
-//                Icon(Icons.Filled.Add, contentDescription = "Add")
-//            }
-//        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -207,7 +253,7 @@ fun MainApp(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             DunoNavGraph(
-                userViewModel,meetingViewModel, navController, isLoggedIn, userName, userNickname
+                userViewModel,meetingViewModel, navController, isLoggedIn, userName, userNickname, selectedDestination
             )
         }
     }
@@ -220,6 +266,7 @@ fun CommonUI(
     selectedDestination: String,
 ) {
     val selectedItem by remember { mutableStateOf(DunoRowScreens) }
+    var imageVec = selectedItem[1].selectedIcon
     Box(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
             modifier = Modifier
@@ -228,6 +275,15 @@ fun CommonUI(
             containerColor = Colors.md_Surface,
         ) {
             selectedItem.forEachIndexed { index,  item ->
+                when (selectedDestination) {
+                    item.route -> {
+                        imageVec =item.selectedIcon
+                    }
+                    DunoScreens.ADD_EDIT_EVENT_SCREEN -> {
+                        imageVec =item.selectedIcon
+                    }
+                    else -> item.unselectedIcon
+                }
                 NavigationBarItem(
                     modifier = Modifier.align(Alignment.Top),
                     icon = {Icon(
@@ -280,6 +336,8 @@ fun NavHostController.navigateSingleTopTo(route: String) =
             restoreState = true
         }
     }
+
+
 
 
 @Preview

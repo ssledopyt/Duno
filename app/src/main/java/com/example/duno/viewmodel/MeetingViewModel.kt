@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.duno.data.MeetingRepository
 import com.example.duno.db.ApiLikes
 import com.example.duno.db.ApiMeeting
+import com.example.duno.db.DataStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -33,10 +34,10 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
         Timber.tag("MeetingViewModel").e("get all meetings")
         repository.getAllMeetings()
             .catch {
-                _meetingList.value = DunoEventUIState(error = it.message)
+                _meetingList.value = _meetingList.value!!.copy(error = it.message)
             }.collect{
                 Timber.tag("MeetingViewModel").e(it.data.toString())
-                _meetingList.value= DunoEventUIState(
+                _meetingList.value= _meetingList.value!!.copy(
                     events = if (it.data.isNullOrEmpty()) emptyList() else it.data,
                 )
             }
@@ -44,50 +45,42 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
 
     fun getUserLikes(nickname:String) = viewModelScope.launch {
         repository.getUserLikes(nickname).catch {
-            _meetingList.value = DunoEventUIState(
-                events = meetingList.value!!.events,
-                favEvents = meetingList.value!!.favEvents,
-                openedEvent = meetingList.value!!.openedEvent,
-                isDetailOnlyOpen = meetingList.value!!.isDetailOnlyOpen,
-                loading = meetingList.value!!.loading,
-                error = it.message
-            )
+            _meetingList.value = _meetingList.value!!.copy(error = it.message)
         }.collect{
-            _meetingList.value = DunoEventUIState(
-                events = meetingList.value!!.events,
-                favEvents = it.data,
-                openedEvent = meetingList.value!!.openedEvent,
-                isDetailOnlyOpen = meetingList.value!!.isDetailOnlyOpen,
-                loading = meetingList.value!!.loading,
-                error = meetingList.value!!.error
+            _meetingList.value = _meetingList.value!!.copy(
+                favEvents = if (it.data == null) emptyList() else it.data.meetingId
             )
         }
     }
 
-    fun putUserLikes(nickname: String, userList: List<Int>) = viewModelScope.launch {
-        Timber.tag("MeetingViewModel").e("get all meetings")
-        repository.putUserLikes(nickname, userList)
-            .catch {
-                _meetingList.value = DunoEventUIState(
-                    events = meetingList.value!!.events,
-                    favEvents = meetingList.value!!.favEvents,
-                    openedEvent = meetingList.value!!.openedEvent,
-                    isDetailOnlyOpen = meetingList.value!!.isDetailOnlyOpen,
-                    loading = meetingList.value!!.loading,
-                    error = it.message
-                )
-            }.collect{
-                Timber.tag("MeetingViewModel").e(it.data.toString())
-                var list = ApiLikes(meetingList.value!!.favEvents!!.meetingId.plus(userList))
-                _meetingList.value= DunoEventUIState(
-                    events = meetingList.value!!.events,
-                    favEvents = list,
-                    openedEvent = meetingList.value!!.openedEvent,
-                    isDetailOnlyOpen = meetingList.value!!.isDetailOnlyOpen,
-                    loading = meetingList.value!!.loading,
-                    error = meetingList.value!!.error
-                )
-            }
+    fun putUserLikes(nickname: String, like: Int?) = viewModelScope.launch {
+        if (like!=null){
+            Timber.tag("MeetingViewModel").e("putLike")
+            repository.putUserLike(nickname, like)
+                .catch {
+                    _meetingList.value = _meetingList.value!!.copy(error = it.message)
+                }.collect{
+                    Timber.tag("MeetingViewModel").e(it.data.toString())
+                    //var list = ApiLikes(meetingList.value!!.favEvents!!.meetingId.plus(userList))
+                    _meetingList.value= _meetingList.value!!.copy(
+                        favEvents = meetingList.value!!.favEvents.plus(like))
+                }
+        }
+    }
+    fun deleteUserLikes(nickname: String, unlike: Int?) = viewModelScope.launch {
+        if (unlike!=null) {
+            Timber.tag("MeetingViewModel").e("deleteLike")
+            repository.deleteUserLike(nickname, unlike)
+                .catch {
+                    _meetingList.value = _meetingList.value!!.copy(error = it.message)
+                }.collect {
+                    Timber.tag("MeetingViewModel").e(it.data.toString())
+                    //var list = ApiLikes(meetingList.value!!.favEvents!!.meetingId.plus(userList))
+                    _meetingList.value = _meetingList.value!!.copy(
+                        favEvents = meetingList.value!!.favEvents.minus(unlike)
+                    )
+                }
+        }
     }
 
 
@@ -103,7 +96,7 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
 }
 
 
-class MeetingViewModelPreview(){
+/*class MeetingViewModelPreview(){
     val events = listOf<ApiMeeting>(
         ApiMeeting(
             meetingId = 43,
@@ -114,17 +107,17 @@ class MeetingViewModelPreview(){
             meetingOrganizer = "Ilya",
             meetingCountPlayers = 6,
             meetingBody = "Allilya allilya allilayla",
-            meetingGeoMarker = "Krusa",
+            meetingGeoMarker = List<Float>
             meetingDate = "Timestamp(System.currentTimeMillis())",
             meetingClosed = "Timestamp(System.currentTimeMillis())",
             )
     )
     val meetingList = DunoEventUIState(events = events)
-}
+}*/
 
 data class DunoEventUIState(
     val events: List<ApiMeeting> = emptyList(),
-    val favEvents: ApiLikes? = null,
+    var favEvents: List<Int> = emptyList(),
     val openedEvent: ApiMeeting? = null,
     val isDetailOnlyOpen: Boolean = false,
     val loading: Boolean = false,

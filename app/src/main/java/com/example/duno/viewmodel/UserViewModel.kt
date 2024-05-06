@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.duno.data.UserRepository
 import com.example.duno.db.ApiGame
 import com.example.duno.db.ApiGenre
+import com.example.duno.db.ApiLocationOfSP
 import com.example.duno.db.ApiMeeting
 import com.example.duno.db.ApiUser
 import com.example.duno.db.Session
@@ -47,13 +48,20 @@ class UserViewModel @Inject constructor(
     val userState : LiveData<DunoUserUIState>
         get() = _userState
 
+    //Игры
     private val _games = MutableLiveData<List<ApiGame>?>(emptyList())
     val games : LiveData<List<ApiGame>?>
         get() = _games
 
+    //Жанры
     private val _genre = MutableLiveData<List<ApiGenre>?>(emptyList())
     val genre : LiveData<List<ApiGenre>?>
         get() = _genre
+
+    //Места клубов
+    private val _places = MutableLiveData<List<ApiLocationOfSP>?>(emptyList())
+    val places : LiveData<List<ApiLocationOfSP>?>
+        get() = _places
 
     var isUserLoggedIn by mutableStateOf(false)
     var userLoggedMessage by mutableStateOf("")
@@ -164,7 +172,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun getAllGenre() = viewModelScope.launch(Dispatchers.IO) {
+    fun getAllGenre() = viewModelScope.launch() {
         repository.loadGenres().catch {
             Timber.e(it.message)
         }.collect{
@@ -173,7 +181,17 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun getAllGame() = viewModelScope.launch(Dispatchers.IO) {
+    fun getAllPlaces() = viewModelScope.launch() {
+        repository.loadPlaces().catch {
+            //nothing?
+            Timber.e(it.message)
+        }.collect{
+            //Timber.e(it.data.toString())
+            _places.value = it.data
+        }
+    }
+
+    fun getAllGame() = viewModelScope.launch() {
         repository.loadGames().catch {
             //nothing?
             Timber.e(it.message)
@@ -183,19 +201,20 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun createUserMeeting(meeting: ApiMeeting) = viewModelScope.launch(Dispatchers.IO) {
+
+    fun createUserMeeting(meeting: ApiMeeting) = viewModelScope.launch() {
         val meet = meeting.copy(meetingOrganizer = userNickname.value)
         repository.createMeeting(meet).catch {
             //nothing?
-            Timber.e(it.message)
+            Timber.tag("ErrorUserVM").e(it.message)
         }.collect{
-            Timber.e(it.data.toString())
+            Timber.tag("CollectUserVM").e(it.data.toString())
         }
     }
 
 }
 
-class UserViewModelPreview(){
+/*class UserViewModelPreview(){
     private val favEvents = listOf<Int>(1,2,5)
     private val myEvents = listOf<ApiMeeting>(
         ApiMeeting(
@@ -214,7 +233,7 @@ class UserViewModelPreview(){
     )
 
     val meetingList = DunoUserUIState(favEvents = favEvents, myEvents = myEvents)
-}
+}*/
 
 data class DunoUserUIState(
     val userName: String = "",

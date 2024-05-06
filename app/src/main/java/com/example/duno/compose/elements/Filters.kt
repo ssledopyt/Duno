@@ -43,6 +43,7 @@ fun FilterChipGroup(
 
         items(items.size) { index: Int ->
             FilterChip(
+                enabled = items[selectedItemIndex] == items[index],
                 modifier = Modifier.padding(top = DunoSizes.tinyDp, end = DunoSizes.tinyDp),
                 selected = items[selectedItemIndex] == items[index],
                 onClick = {
@@ -71,8 +72,11 @@ fun FilterChipGroup(
                     containerColor = Colors.es_Background,
                     disabledContainerColor = Colors.md_Primary,
                     selectedContainerColor = Colors.es_PrimaryCard),
-                border = FilterChipDefaults.filterChipBorder(borderWidth = 2.dp,
-                    borderColor = Colors.es_PrimaryCard)
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = false,
+                    selected = false,
+                    borderWidth = 2.dp,
+                    borderColor = Colors.es_PrimaryCard),
             )
         }
     }

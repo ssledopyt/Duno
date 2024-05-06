@@ -27,6 +27,8 @@ object DunoScreens {
     const val SIGNUP_SCREEN = "signUp"
     const val LOGIN_SCREEN = "login"
     const val HELP_SCREEN = "helpScreen"
+    const val LOADING_SCREEN = "loadingScreen"
+
 }
 
 object Events : DunoDestination{

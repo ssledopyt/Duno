@@ -3,6 +3,7 @@ package com.example.duno.data
 import com.example.duno.db.ApiGame
 import com.example.duno.db.ApiGenre
 import com.example.duno.db.ApiLikes
+import com.example.duno.db.ApiLocationOfSP
 import com.example.duno.db.ApiMeeting
 import com.example.duno.db.ApiService
 import com.example.duno.db.ApiUser
@@ -65,6 +66,14 @@ class UserRepository @Inject constructor(private val apiService: ApiService): Us
         emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
     }
 
+    override fun loadPlaces() = flow {
+        emit(DataStatus.loading())
+        val genre =  apiService.getAllPlaces()
+        emit(DataStatus.success(genre))
+    }.catch {
+        emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
+    }
+
     override fun createMeeting(meeting: ApiMeeting) = flow {
         emit(DataStatus.loading())
         val newMeeting =  apiService.createMeeting(
@@ -72,10 +81,11 @@ class UserRepository @Inject constructor(private val apiService: ApiService): Us
             gameName = meeting.meetingGame,
             body = meeting.meetingBody,
             status = meeting.meetingStatus,
-            geoMarker = meeting.meetingGeoMarker,
+            geoMarker = meeting.meetingGeoMarker.toString(),
             nickname = meeting.meetingOrganizer,
             countPlayers = meeting.meetingCountPlayers,
             meetingTime = meeting.meetingDate,
+            genre = meeting.meetingGenre,
             closedAt = meeting.meetingClosed
         )
         emit(DataStatus.success(newMeeting))
@@ -92,7 +102,7 @@ interface UserRepositoryHelper {
     fun createUser(user: ApiUser): Flow<DataStatus<String>>
     fun createMeeting(meeting: ApiMeeting): Flow<DataStatus<String>>
 
+    fun loadPlaces():Flow<DataStatus<List<ApiLocationOfSP>>>
     fun loadGames():Flow<DataStatus<List<ApiGame>>>
     fun loadGenres():Flow<DataStatus<List<ApiGenre>>>
-
 }

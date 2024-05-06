@@ -74,7 +74,7 @@ android {
 
 dependencies {
 
-    val composeBom = platform("androidx.compose:compose-bom:2024.01.00")
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation("androidx.compose.material3:material3")
@@ -90,6 +90,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.chargemap.compose:numberpicker:1.0.3")
     implementation ("io.github.vanpra.compose-material-dialogs:datetime:0.9.0")
+
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")

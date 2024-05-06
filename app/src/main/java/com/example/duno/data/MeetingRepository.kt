@@ -35,7 +35,7 @@ class MeetingRepository @Inject constructor(private val apiService: ApiService):
             meetingID=meetingID,
             body = meeting.meetingTitle,
             status = meeting.meetingStatus,
-            geoMarker =meeting.meetingGeoMarker,
+            geoMarker = meeting.meetingGeoMarker,
         )
         emit(DataStatus.success(newMeeting))
     }.catch {
@@ -58,10 +58,18 @@ class MeetingRepository @Inject constructor(private val apiService: ApiService):
         emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
     }
 
-    override fun putUserLikes(nickname: String, userLikes: List<Int>) = flow {
+    override fun putUserLike(nickname: String, userLike: Int) = flow {
         emit(DataStatus.loading())
-        val userLikes =  apiService.putUserLikes(nickname, userLikes)
-        emit(DataStatus.success(userLikes))
+        val userLikeObj =  apiService.putUserLikes(nickname, userLike)
+        emit(DataStatus.success(userLikeObj))
+    }.catch {
+        emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
+    }
+
+    override fun deleteUserLike(nickname: String, userLike: Int) = flow {
+        emit(DataStatus.loading())
+        val userLikeObj =  apiService.deleteUserLikes(nickname, userLike)
+        emit(DataStatus.success(userLikeObj))
     }.catch {
         emit(DataStatus.error(it.message.toString() ?: "Unknown Error"))
     }
@@ -72,7 +80,8 @@ interface MeetingRepositoryHelper {
     fun getMeeting(meetingID: Int): Flow<DataStatus<ApiMeeting>>
     fun getAllMeetings(): Flow<DataStatus<List<ApiMeeting>>>
     fun getUserLikes(nickname: String): Flow<DataStatus<ApiLikes>>
-    fun putUserLikes(nickname: String, userLikes: List<Int>): Flow<DataStatus<String>>
+    fun putUserLike(nickname: String, userLike: Int): Flow<DataStatus<String>>
+    fun deleteUserLike(nickname: String, userLike: Int): Flow<DataStatus<String>>
     fun updateMeeting(meetingID: Int, meeting: ApiMeeting): Flow<DataStatus<String>>
     fun deleteMeeting(meetingID: Int): Flow<DataStatus<String>>
 }

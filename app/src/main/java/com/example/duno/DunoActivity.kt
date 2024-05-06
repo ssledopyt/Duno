@@ -1,9 +1,11 @@
 package com.example.duno
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.duno.databinding.MapScreenBinding
 import com.yandex.mapkit.MapKitFactory
@@ -22,4 +24,11 @@ class DunoActivity : AppCompatActivity() {
             Screen()
         }
     }
+
+    /*@RequiresApi(Build.VERSION_CODES.M)
+    override fun onBackPressed() {
+        val currentScreen = supportFragmentManager.fragments.lastOrNull()
+        super.onBackPressed()
+        finish()
+    }*/
 }

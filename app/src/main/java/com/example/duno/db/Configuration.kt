@@ -58,7 +58,7 @@ data class ApiMeeting(
     @SerializedName("status")
     val meetingStatus: Boolean = true,
     @SerializedName("geo_marker")
-    val meetingGeoMarker: String = "",
+    val meetingGeoMarker: List<Float>,
     @SerializedName("count_players")
     val meetingCountPlayers: Int = 0,
     @SerializedName("meeting_time")
@@ -94,7 +94,7 @@ data class ApiLocationOfSP(
     @SerializedName("name_of_club")
     val nameClub: String = "",
     @SerializedName("geo_marker")
-    val geoMarker: Point,
+    val geoMarker: List<Float>,
     @SerializedName("place")
     val place: String = ""
 )

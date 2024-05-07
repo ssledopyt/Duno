@@ -17,7 +17,11 @@
             tools:targetApi="31"
             android:usesCleartextTraffic="true">
         <activity android:name=".DunoActivity" android:exported="true">
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
+                <data android:host="com.example.duno.ru"
+                        android:scheme="https" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />

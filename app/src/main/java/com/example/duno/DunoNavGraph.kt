@@ -1,5 +1,6 @@
 package com.example.duno
 
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.duno.compose.auth.LoginScreen
 import com.example.duno.compose.auth.RegistrationScreen
 import com.example.duno.compose.elements.LoadingScreen
@@ -69,11 +71,16 @@ fun DunoNavGraph(
             )
             //username,is logged
         }
-        composable(DunoScreens.MAP_SCREEN){
+        composable(DunoScreens.MAP_SCREEN,deepLinks = listOf( navDeepLink {
+            uriPattern = "https://com.example.duno.ru/deeplink/mapscreen"
+            action = Intent.ACTION_VIEW
+        } )){
+
             MapScreenUI(
                 goToEvents = {
                     navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
-                }
+                },
+                //userViewModel
             )
             //username,is logged
         }

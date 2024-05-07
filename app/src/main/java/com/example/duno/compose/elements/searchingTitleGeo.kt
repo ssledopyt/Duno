@@ -3,6 +3,7 @@ package com.example.duno.compose.elements
 import com.example.duno.db.ApiLocationOfSP
 import timber.log.Timber
 
+//NOT ACTIVE METHOD
 fun searchingTitleGeo(locations: List<ApiLocationOfSP>?,
                       eventGeo: List<Float>):String{
     locations?.forEach(){

@@ -221,7 +221,7 @@ fun EventsDetails(
                     Row(modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(
-                            text = searchingTitleGeo(places, event.meetingGeoMarker),
+                            text = event.clubName,
                             //style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Light,
                             maxLines = 1,

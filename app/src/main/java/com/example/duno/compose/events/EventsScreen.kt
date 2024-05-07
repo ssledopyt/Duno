@@ -335,7 +335,7 @@ fun EventsDetails(
                     Row(modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(
-                            text = searchingTitleGeo(places, event.meetingGeoMarker),
+                            text = event.clubName,
                             //style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Light,
                             maxLines = 1,
@@ -355,7 +355,7 @@ fun EventsDetails(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = if (event.meetingBody.isEmpty()) "Пока пусто" else event.meetingBody,
+                text = event.meetingBody.ifEmpty { "Пока пусто" },
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Normal,
                 maxLines = 2

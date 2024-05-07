@@ -65,6 +65,8 @@ data class ApiMeeting(
     val meetingDate: String,
     @SerializedName("closed_at")
     val meetingClosed: String = "",
+    @SerializedName("name_of_club")
+    val clubName: String = "",
 ){
     companion object Ilya{
         val meetingId = 0

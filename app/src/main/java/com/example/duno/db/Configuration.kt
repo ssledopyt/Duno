@@ -58,7 +58,7 @@ data class ApiMeeting(
     @SerializedName("status")
     val meetingStatus: Boolean = true,
     @SerializedName("geo_marker")
-    val meetingGeoMarker: List<Float>,
+    val meetingGeoMarker: List<Double>,
     @SerializedName("count_players")
     val meetingCountPlayers: Int = 0,
     @SerializedName("meeting_time")
@@ -71,15 +71,17 @@ data class ApiMeeting(
     companion object Ilya{
         val meetingId = 0
         val meetingTitle = "Поход в Тильтамир"
-        val meetingGame = "Тильтамир"
+        val meetingGame = "Dungeon and Dragons"
         val meetingBody = "Собираемся в клубе около 12, может быть за час. Кто хочет пишите мне в телеграм. Возьмите с собой все нужные карты, фишки"
         val meetingOrganizer = "Игорь"
         val meetingStatus = true
-        val meetingGenre = "Dungeon and Dragons"
+        val meetingGenre = "RolePlay"
         val meetingGeoMarker = Point(55.963143, 38.044838)
         val meetingCountPlayers = 3
-        val meetingCreated = String
-        val meetingClosed = String
+        val meetingCreated = "String"
+        val meetingClosed = "2024-04-29T18:28:45.000"
+        val meetingDate = "2024-04-29T18:28:45.000"
+        val clubName = "12 Ярдов"
     }
 }
 
@@ -96,10 +98,18 @@ data class ApiLocationOfSP(
     @SerializedName("name_of_club")
     val nameClub: String = "",
     @SerializedName("geo_marker")
-    val geoMarker: List<Float>,
+    val geoMarker: List<Double>,
     @SerializedName("place")
     val place: String = ""
-)
+){
+    companion object Terra{
+        val meetId = 0
+        val nameClub = "Терра"
+        val geoMarker = listOf(55.77216, 37.6826)
+        val place = "42433"
+    }
+}
+
 
 data class ApiGame(
 /*    @SerializedName("game_id")

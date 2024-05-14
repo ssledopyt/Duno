@@ -38,6 +38,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -61,7 +62,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.duno.R
 import com.example.duno.compose.elements.TwiceBackHandler
-import com.example.duno.compose.elements.searchingTitleGeo
 import com.example.duno.db.ApiLocationOfSP
 import com.example.duno.db.ApiMeeting
 import com.example.duno.ui.DunoSizes
@@ -267,7 +267,7 @@ fun EventsDetails(
     index: Int,
     places: List<ApiLocationOfSP>?
 ) {
-    var userLikeEvent by remember { mutableStateOf(userLike) }
+    var userLikeEvent = remember { mutableStateOf(userLike) }
     Timber.tag("UserLikesSET").e(userLikes.toString())
     Card(
         modifier = modifier.fillMaxSize(),
@@ -312,25 +312,7 @@ fun EventsDetails(
 
                             }
                         }
-                        IconButton(modifier = Modifier,
-                            onClick = {
-                            userLikeEvent = if (!userLikeEvent){
-                                meetingViewModel.putUserLikes(userNickname, event.meetingId)
-                                true
-                            }else{
-                                meetingViewModel.deleteUserLikes(userNickname, event.meetingId)
-                                false
-                            }
-                                Timber.e(userLikes.toString())
-                        }) {
-                            if (userLikeEvent){
-                                Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
-                            }
-                            else{
-                                Icon(imageVector = Icons.Sharp.FavoriteBorder, contentDescription = null, tint = Color.LightGray)
-
-                            }
-                        }
+                        IconLike(userLikeEvent,meetingViewModel,userNickname,event)
                     }
                     Row(modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween) {
@@ -364,6 +346,33 @@ fun EventsDetails(
     }
 }
 
+@Composable
+fun IconLike(
+    userLikeEvent: MutableState<Boolean>,
+    meetingViewModel: MeetingViewModel,
+    userNickname: String,
+    event: ApiMeeting
+) {
+    IconButton(modifier = Modifier,
+        onClick = {
+            userLikeEvent.value = if (!userLikeEvent.value){
+                meetingViewModel.putUserLikes(userNickname, event.meetingId)
+                true
+            }else{
+                meetingViewModel.deleteUserLikes(userNickname, event.meetingId)
+                false
+            }
+            //Timber.e(userLikes.toString())
+        }) {
+        if (userLikeEvent.value){
+            Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
+        }
+        else{
+            Icon(imageVector = Icons.Sharp.FavoriteBorder, contentDescription = null, tint = Color.LightGray)
+
+        }
+    }
+}
 
 
 @Preview

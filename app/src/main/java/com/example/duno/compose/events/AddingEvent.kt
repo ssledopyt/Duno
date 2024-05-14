@@ -72,7 +72,7 @@ fun CreateEventScreen(
     var eventName by remember { mutableStateOf("") }
     var selectedGame by remember { mutableStateOf<String>("") }
     var selectedGenre by remember { mutableStateOf<String>("") }
-    val selectedPlace = remember { mutableStateMapOf<String, List<Float>>("" to listOf<Float>(0.0F, 0.0F))}
+    val selectedPlace = remember { mutableStateMapOf<String, List<Double>>("" to listOf<Double>(0.0, 0.0))}
     var description by remember { mutableStateOf("") }
     var playerCount by remember { mutableStateOf("") }
 

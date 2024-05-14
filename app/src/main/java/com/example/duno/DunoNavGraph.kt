@@ -1,11 +1,10 @@
 package com.example.duno
 
 import android.content.Intent
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,6 +36,7 @@ import com.example.duno.compose.map.MapScreenUI
 import com.example.duno.compose.profile.ProfileScreen
 import com.example.duno.compose.profile.UserEventsProfile
 import com.example.duno.ui.Colors
+import com.example.duno.viewmodel.MapViewModel
 import com.example.duno.viewmodel.MeetingViewModel
 import com.example.duno.viewmodel.UserViewModel
 import timber.log.Timber
@@ -47,15 +47,19 @@ import timber.log.Timber
 fun DunoNavGraph(
     userViewModel: UserViewModel,
     meetingViewModel: MeetingViewModel,
+    mapViewModel: MapViewModel,
     navController: NavHostController,
     isLoggedIn: Boolean,
     userName: String,
     userNickname: String,
-    selectedDestination: String
-){
+    selectedDestination: String,
+    innerPadding: PaddingValues,
+
+    ){
     NavHost(
         navController = navController,
         startDestination = DunoScreens.LOGIN_SCREEN,
+        route = "Parent"
     ){
         composable(DunoScreens.EVENTS_SCREEN){
             //navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
@@ -72,17 +76,24 @@ fun DunoNavGraph(
             //username,is logged
         }
         composable(DunoScreens.MAP_SCREEN,deepLinks = listOf( navDeepLink {
-            uriPattern = "https://com.example.duno.ru/deeplink/mapscreen"
+            uriPattern = "https://com.example.duno.ru/mapscreen"
             action = Intent.ACTION_VIEW
         } )){
+            /*val parentEntry = remember (it){
+                navController.getBackStackEntry("Parent")
+            }
 
+            val vm:MapViewModel = hiltViewModel(parentEntry)*/
             MapScreenUI(
                 goToEvents = {
                     navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
                 },
-                //userViewModel
+                userViewModel,
+                mapViewModel,
+                innerPadding
             )
             //username,is logged
+
         }
         composable(DunoScreens.PROFILE_SCREEN){
             ProfileScreen(
@@ -119,7 +130,10 @@ fun DunoNavGraph(
         composable("${DunoScreens.ABOUT_EVENT_SCREEN}/{eventId}", arguments = listOf(navArgument("eventId") { type = NavType.IntType})){
             it.arguments?.getInt("eventId")?.let {eventId ->
                 Timber.e(eventId.toString())
-                EventDetailsScreen(eventId = eventId, meetingViewModel)
+                EventDetailsScreen(
+                    eventId = eventId,
+                    meetingViewModel
+                )
             }
         }
         composable(DunoScreens.ADD_EDIT_EVENT_SCREEN){
@@ -179,6 +193,8 @@ fun Screen(
     navController: NavHostController = rememberNavController(),
     userViewModel: UserViewModel = hiltViewModel(),
     meetingViewModel: MeetingViewModel = hiltViewModel(),
+    mapViewModel: MapViewModel = hiltViewModel(),
+    //mapViewModel: MapViewModel= hiltViewModel()
 ){
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val isLoggedIn by userViewModel.isLoggedIn.collectAsState()
@@ -204,7 +220,7 @@ fun Screen(
         //else
 
     }
-    MainApp(userViewModel,meetingViewModel, selectedDestination, navController, isLoggedIn, userName, userNickname)
+    MainApp(userViewModel,meetingViewModel,mapViewModel, selectedDestination, navController, isLoggedIn, userName, userNickname)
 }
 
 
@@ -213,6 +229,7 @@ fun Screen(
 fun MainApp(
     userViewModel: UserViewModel,
     meetingViewModel: MeetingViewModel,
+    mapViewModel: MapViewModel,
     selectedDestination: String,
     navController: NavHostController,
     isLoggedIn: Boolean,
@@ -260,7 +277,7 @@ fun MainApp(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             DunoNavGraph(
-                userViewModel,meetingViewModel, navController, isLoggedIn, userName, userNickname, selectedDestination
+                userViewModel,meetingViewModel,mapViewModel, navController, isLoggedIn, userName, userNickname, selectedDestination, innerPadding
             )
         }
     }

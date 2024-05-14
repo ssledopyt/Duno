@@ -94,7 +94,7 @@ interface ApiService {
         @Path("meetingID") meetingID: Int?,
         @Query("body") body: String?,
         @Query("status") status: Boolean?,
-        @Query("geo_marker") geoMarker:List<Float>
+        @Query("geo_marker") geoMarker:List<Double>
     ): String
 
     //Удалить встречу

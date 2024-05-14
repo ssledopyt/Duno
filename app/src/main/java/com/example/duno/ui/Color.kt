@@ -17,4 +17,5 @@ object Colors {
     val es_PrimaryCard = Color("#fecd7b".toColorInt())
     val es_MainColor3 = Color("#210601".toColorInt())
     val es_Card = Color("#f3a333".toColorInt())
+    val es_AttentionCard = Color("#FFE4C4".toColorInt())
 }

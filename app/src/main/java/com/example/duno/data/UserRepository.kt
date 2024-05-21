@@ -93,6 +93,21 @@ class UserRepository @Inject constructor(private val apiService: ApiService): Us
         emit(DataStatus.error(it.message.toString()))
     }
 
+    override fun deleteMeeting(meetingID: Int) = flow {
+        emit(DataStatus.loading())
+        val meeting =  apiService.deleteMeeting(meetingID)
+        emit(DataStatus.success(meeting))
+    }.catch {
+        emit(DataStatus.error(it.message.toString()))
+    }
+
+    override fun updateMeeting(meetingID: Int, body:String, status:Boolean) = flow {
+        emit(DataStatus.loading())
+        val meeting =  apiService.updateMeeting(meetingID, body, status)
+        emit(DataStatus.success(meeting))
+    }.catch {
+        emit(DataStatus.error(it.message.toString()))
+    }
 }
 
 
@@ -101,6 +116,9 @@ interface UserRepositoryHelper {
     fun checkPass(nickname: String,  password: String = ""): Flow<DataStatus<String>>
     fun createUser(user: ApiUser): Flow<DataStatus<String>>
     fun createMeeting(meeting: ApiMeeting): Flow<DataStatus<String>>
+    fun deleteMeeting(meetingID: Int): Flow<DataStatus<String>>
+    fun updateMeeting(meetingID: Int, body:String, status:Boolean): Flow<DataStatus<String>>
+
 
     fun loadPlaces():Flow<DataStatus<List<ApiLocationOfSP>>>
     fun loadGames():Flow<DataStatus<List<ApiGame>>>

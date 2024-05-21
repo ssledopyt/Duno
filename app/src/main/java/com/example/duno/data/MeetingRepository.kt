@@ -29,26 +29,6 @@ class MeetingRepository @Inject constructor(private val apiService: ApiService):
         emit(DataStatus.error(it.message.toString()))
     }
 
-    override fun updateMeeting(meetingID: Int, meeting: ApiMeeting) = flow {
-        emit(DataStatus.loading())
-        val newMeeting =  apiService.updateMeeting(
-            meetingID=meetingID,
-            body = meeting.meetingTitle,
-            status = meeting.meetingStatus,
-            geoMarker = meeting.meetingGeoMarker,
-        )
-        emit(DataStatus.success(newMeeting))
-    }.catch {
-        emit(DataStatus.error(it.message.toString()))
-    }
-
-    override fun deleteMeeting(meetingID: Int) = flow {
-        emit(DataStatus.loading())
-        val meeting =  apiService.deleteMeeting(meetingID)
-        emit(DataStatus.success(meeting))
-    }.catch {
-        emit(DataStatus.error(it.message.toString()))
-    }
 
     override fun getUserLikes(nickname: String) = flow {
         emit(DataStatus.loading())
@@ -82,6 +62,4 @@ interface MeetingRepositoryHelper {
     fun getUserLikes(nickname: String): Flow<DataStatus<ApiLikes>>
     fun putUserLike(nickname: String, userLike: Int): Flow<DataStatus<String>>
     fun deleteUserLike(nickname: String, userLike: Int): Flow<DataStatus<String>>
-    fun updateMeeting(meetingID: Int, meeting: ApiMeeting): Flow<DataStatus<String>>
-    fun deleteMeeting(meetingID: Int): Flow<DataStatus<String>>
 }

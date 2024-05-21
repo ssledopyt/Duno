@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,12 +25,18 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.sharp.FavoriteBorder
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,12 +44,10 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -52,15 +57,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.example.duno.R
+import androidx.core.graphics.toColorInt
+import com.example.duno.compose.elements.EventsCard
 import com.example.duno.compose.elements.TwiceBackHandler
 import com.example.duno.db.ApiLocationOfSP
 import com.example.duno.db.ApiMeeting
@@ -77,13 +83,12 @@ import java.time.LocalDateTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun EventsScreen(
-    goToEventDetails: (Int) -> Unit,
+    goToEventDetails: (Int, Boolean) -> Unit,
     userNickname: String,
     meetingViewModel: MeetingViewModel,
     userViewModel: UserViewModel,
-    navController: NavController,
 ) {
-    var eventId = remember{ mutableIntStateOf(0) }
+    //var eventId = remember{ mutableIntStateOf(0) }
     var click = remember { mutableStateOf(false)}
 
     var meetings = remember { mutableListOf<ApiMeeting?>(null) }
@@ -92,23 +97,30 @@ fun EventsScreen(
 
     val meetingUIState by meetingViewModel.meetingList.observeAsState()
     val userUIState by userViewModel.places.observeAsState()
+
+    var refreshing by remember { mutableStateOf(false) }
+
+
     Timber.e("EventsScreen")
     Timber.e(meetingViewModel.meetingList.value!!.favEvents.toString())
 
     val coroutineScope = rememberCoroutineScope()
-    val pullRef = rememberPullRefreshState(false, {meetingViewModel.getAllMeetings()})
+    fun refresh() = coroutineScope.launch {
+        refreshing = true
+        meetingViewModel.getAllMeetings()
+        meetingViewModel.getUserLikes(userNickname)
+        refreshing = false
+    }
+    val pullRefreshState = rememberPullRefreshState(refreshing = refreshing, onRefresh = ::refresh)
+
     var launch by remember { mutableStateOf(true) }
     //val lifecycleState by lifecycleOwner.lifecycle.currentState
     //val meetingUIState = meetingViewModel.meetingList.value
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.inverseOnSurface)
-            //       .verticalScroll(rememberScrollState())
             .semantics { contentDescription = "Events Screen" }
             .background(color = Colors.es_Background)
-            //.pullRefresh(pullRef),
-
     ) {
         val context = LocalContext.current
         val activity = (context as? Activity)
@@ -125,7 +137,7 @@ fun EventsScreen(
         var active by remember { mutableStateOf(false) }
         Box(modifier = Modifier
             .fillMaxWidth()
-            .background(color = Colors.md_Background)
+            .background(color = Color.White)
             .height(76.dp)){
         SearchBar(modifier = Modifier
             .fillMaxWidth(1f)
@@ -145,14 +157,16 @@ fun EventsScreen(
                 active = it
             },
             placeholder = {
+                if(!active){
                 Text(text = "Поиск мероприятия",
                     fontSize = 14.sp)
+                }
             },
             trailingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = null)
             },
             colors = SearchBarDefaults.colors(
-                containerColor = Colors.ss_BackGround,
+                containerColor = Color("#fefeff".toColorInt()),
                 dividerColor = Colors.ss_AccentColor
                 )
         ) {}
@@ -161,46 +175,71 @@ fun EventsScreen(
 /*        Box(modifier = Modifier.padding(top = DunoSizes.tinyDp, start = DunoSizes.smallDp)){
             PreviewFilterChipGroup()
         }*/
+        HorizontalDivider(
+            Modifier
+                .fillMaxWidth()
+        )
         Box(modifier = Modifier
-            .padding(top = DunoSizes.tinyDp)
-            .padding(horizontal = DunoSizes.tinyDp)){
+            .fillMaxSize()
+            .padding(horizontal = DunoSizes.tinyDp)
+            .pullRefresh(pullRefreshState)
+        ){
             val listState = rememberLazyListState()
-            //val meetingViewModel: MeetingViewModelPreview = MeetingViewModelPreview()
-            //var userLikes = remember {mutableListOf<Int>()}
-            //Timber.e(meetingUIState?.toString())
-/*            if (meetingUIState){
-                Text(modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center),
-                    text = "Загрузка мероприятий...")
+            if (meetingUIState?.events.isNullOrEmpty())
+            {
+                Column (Modifier.align(Alignment.Center)){
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(8.dp),
+                        text = "Проверьте подключение к интернету",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold)
+                    Button(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        onClick = {
+                            refresh()
+                        },
+                        colors = ButtonDefaults.buttonColors(Colors.ss_AccentColor)
+                    ) {
+                        Text(text = "Обновить")
+                    }
+                }
+            }else{
+                EventsList(
+                    listState,
+                    meetingUIState,
+                    meetingViewModel,
+                    meetingUIState!!.events,
+                    goToEventDetails = goToEventDetails,
+                    //eventId,
+                    meetingUIState!!.favEvents,
+                    userNickname,
+                    )
             }
-            else {*/
-            EventsList(
-                listState,
-                meetingUIState,
-                meetingViewModel,
-                meetingUIState!!.events,
-                goToEventDetails = {goToEventDetails(eventId.intValue)},
-                eventId,
-                meetingUIState!!.favEvents,
-                userNickname,
-                userUIState
-                )
-          //  }
-            FloatingActionButton(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(15.dp),
-                onClick = {
-                    coroutineScope.launch{ listState.animateScrollToItem(index = 0)  }
-                },
-                containerColor = Colors.es_PrimaryCard
-            ) {
-                Icon(imageVector = Icons.Filled.KeyboardArrowUp,contentDescription = null)
+            if(listState.canScrollBackward) {
+                FloatingActionButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(15.dp)
+                        .size(36.dp),
+                    onClick = {
+                        coroutineScope.launch{ listState.animateScrollToItem(index = 0)  }
+                    },
+                    containerColor = Colors.es_PrimaryCard
+                ) {
+                    Icon(imageVector = Icons.Filled.KeyboardArrowUp,contentDescription = null)
+                }
             }
+            PullRefreshIndicator(refreshing = refreshing, state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }
+
+
 
 
 @Composable
@@ -209,34 +248,31 @@ fun EventsList(
     meetingUIState: DunoEventUIState?,
     meetingViewModel: MeetingViewModel,
     events: List<ApiMeeting>,
-    goToEventDetails: (Int) -> Unit,
-    eventId: MutableIntState,
+    goToEventDetails: (Int, Boolean) -> Unit,
     userLikes: List<Int>,
     userNickname: String,
-    places: List<ApiLocationOfSP>?
 ): State<List<Int>> {
     LazyColumn(
         state = listState,
         modifier = Modifier
             .fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Timber.e("EventList")
         Timber.e(userLikes.toString())
         itemsIndexed(events) { index, event ->
             //Timber.e((meetingUIState.favEvents?.meetingId?.contains(event.meetingId)).toString())
-            if(event.meetingOrganizer != userNickname){
-                EventsDetails(
+            if (event.meetingOrganizer != userNickname &&
+                LocalDateTime.parse(event.meetingDate).isAfter(LocalDateTime.now())
+            ) {
+                EventsCard(
                     meetingViewModel = meetingViewModel,
                     userNickname = userNickname,
                     event = event,
                     userLike = userLikes.contains(event.meetingId),
-                    goToEventDetails = {goToEventDetails(eventId.intValue)},
+                    goToEventDetails = goToEventDetails,
                     userLikes = userLikes,
-                    eventId = eventId,
-                    index = index,
-                    places = places
                 )
             }
         }
@@ -253,96 +289,16 @@ fun EventsList(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsDetails(
-    modifier: Modifier = Modifier,
-    meetingViewModel: MeetingViewModel,
-    userNickname: String,
-    event: ApiMeeting,
-    userLike: Boolean,
-    goToEventDetails: (Int) -> Unit,
-    userLikes: List<Int>,
-    eventId: MutableIntState,
-    index: Int,
-    places: List<ApiLocationOfSP>?
-) {
-    var userLikeEvent = remember { mutableStateOf(userLike) }
-    Timber.tag("UserLikesSET").e(userLikes.toString())
-    Card(
-        modifier = modifier.fillMaxSize(),
-        colors = CardDefaults.cardColors(
-            containerColor = Colors.ss_BackGround,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        onClick = {
-            eventId.intValue = index
-            goToEventDetails(eventId.intValue)
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Изображение игры
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    val startsAtDate = LocalDateTime.parse(event.meetingDate)
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Row(modifier = Modifier){
-                            Text(
-                                text = event.meetingTitle,
-                                style = MaterialTheme.typography.headlineMedium,
-                                maxLines = 1,
-                                fontWeight = FontWeight.Bold
-                            )
-                            if (startsAtDate.isAfter(LocalDateTime.now())){
-                                Icon(painter = painterResource(id = R.drawable.icon_enable_event), contentDescription = null, tint = Color.LightGray)
-                            }else{
-                                Icon(painter = painterResource(id = R.drawable.icon_completed_event), contentDescription = null, tint = Color.Red)
-
-                            }
-                        }
-                        IconLike(userLikeEvent,meetingViewModel,userNickname,event)
-                    }
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(
-                            text = event.clubName,
-                            //style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Light,
-                            maxLines = 1,
-
-                            )
-                        Text(
-                            text = "${startsAtDate.dayOfMonth}.${startsAtDate.monthValue}.${startsAtDate.year} " +
-                                    "в ${startsAtDate.hour}:${startsAtDate.minute}",
-                            //style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Light,
-                            maxLines = 1,
-                        )
-                    }
-                }
-            }
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = event.meetingBody.ifEmpty { "Пока пусто" },
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Normal,
-                maxLines = 2
-            )
-        }
+fun IconStatus(
+    status: Boolean
+){
+    if (status){
+        FilterChip(modifier = Modifier.size(10.dp), selected = true, onClick = {  }, label = {  }, colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Colors.es_Accept))
+        //Icon(imageVector = ImageVector.vectorResource(id = R.drawable.green_signal), contentDescription = null, tint= Color.Unspecified)
+    }else{
+        FilterChip(modifier = Modifier.size(10.dp), selected = true, onClick = {  }, label = {  }, colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Colors.es_Cancel))
+        //Icon(imageVector = ImageVector.vectorResource(R.drawable.red_signal), contentDescription = null, tint= Color.Unspecified)
     }
 }
 
@@ -353,7 +309,8 @@ fun IconLike(
     userNickname: String,
     event: ApiMeeting
 ) {
-    IconButton(modifier = Modifier,
+    IconButton(
+        modifier = Modifier.size(36.dp),
         onClick = {
             userLikeEvent.value = if (!userLikeEvent.value){
                 meetingViewModel.putUserLikes(userNickname, event.meetingId)

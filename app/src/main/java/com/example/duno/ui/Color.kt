@@ -12,10 +12,14 @@ object Colors {
     val ss_BackGround = Color("#FBF8F4".toColorInt())
     val ss_MainColor = Color("#463e2e".toColorInt())
     val ss_AccentColor = Color("#463e2e".toColorInt())
-
+    //fefeff
     val es_Background = Color("#FDF5E6".toColorInt())
     val es_PrimaryCard = Color("#fecd7b".toColorInt())
     val es_MainColor3 = Color("#210601".toColorInt())
     val es_Card = Color("#f3a333".toColorInt())
     val es_AttentionCard = Color("#FFE4C4".toColorInt())
+
+    val es_Cancel = Color(188,71,73)
+    val es_Accept = Color(178, 236, 93)
+
 }

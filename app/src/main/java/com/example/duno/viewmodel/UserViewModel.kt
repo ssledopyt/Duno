@@ -212,6 +212,23 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    fun deleteUserMeeting(meetingId: Int) = viewModelScope.launch() {
+        repository.deleteMeeting(meetingId).catch {
+            //nothing?
+            Timber.tag("ErrorUserVM").e(it.message)
+        }.collect{
+            Timber.tag("CollectUserVM").e(it.data.toString())
+        }
+    }
+
+    fun updateUserMeeting(meetingID: Int, body:String, status:Boolean) = viewModelScope.launch() {
+        repository.updateMeeting(meetingID, body, status).catch {
+            //nothing?
+            Timber.tag("ErrorUserVM").e(it.message)
+        }.collect{
+            Timber.tag("CollectUserVM").e(it.data.toString())
+        }
+    }
 }
 
 /*class UserViewModelPreview(){

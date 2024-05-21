@@ -17,10 +17,16 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,8 +39,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,6 +70,7 @@ fun UserEventsProfile(
     meetingViewModel:MeetingViewModel,
     userViewModel: UserViewModel,
     navigateToProfile: () -> Unit,
+    navigateToEventsDetails: (Int, Boolean) -> Unit
     ) {
     viewUserEvents.value = title
     BackHandler {
@@ -104,7 +114,7 @@ fun UserEventsProfile(
                 Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
             else {
-                EventsList(listState, meetingUIState, userUIState.value, userNickname)
+                EventsList(listState, meetingUIState, userUIState.value, userNickname, navigateToEventsDetails, userViewModel)
             }
             /*FloatingActionButton(
                 modifier = Modifier
@@ -127,7 +137,9 @@ fun EventsList(
     listState: LazyListState,
     meetingUIState: DunoEventUIState?,
     places: List<ApiLocationOfSP>?,
-    userNickname: String
+    userNickname: String,
+    navigateToEventsDetails: (Int, Boolean) -> Unit,
+    userViewModel: UserViewModel
 ) {
     var userEvents by remember{ mutableStateOf(false) }
     var localDTime = LocalDateTime.now()
@@ -145,7 +157,14 @@ fun EventsList(
                 itemsIndexed(meetingUIState!!.events) {index, event ->
                     val eventTime = LocalDateTime.parse(event.meetingDate)
                     if (event.meetingOrganizer == userNickname && eventTime.isAfter(localDTime)) {
-                        EventsDetails(event = event, eventTime = eventTime, places = places)
+                        EventsCard(
+                            event = event,
+                            eventTime = eventTime,
+                            places = places,
+                            navigateToEventsDetails = navigateToEventsDetails,
+                            userNickname = userNickname,
+                            userViewModel = userViewModel
+                        )
                         userEvents = true
                     }
                     else if(index == meetingUIState.events.size){
@@ -162,7 +181,14 @@ fun EventsList(
                     items(meetingUIState.events) {event ->
                         val eventTime = LocalDateTime.parse(event.meetingDate)
                         if (meetingUIState.favEvents.contains(event.meetingId))
-                            EventsDetails(event = event, eventTime = eventTime, places = places)
+                            EventsCard(
+                                event = event,
+                                eventTime = eventTime,
+                                places = places,
+                                navigateToEventsDetails = navigateToEventsDetails,
+                                userNickname = userNickname,
+                                userViewModel = userViewModel
+                            )
                     }
                 }
             }
@@ -170,7 +196,14 @@ fun EventsList(
                 itemsIndexed(meetingUIState!!.events) {index, event ->
                     val eventTime = LocalDateTime.parse(event.meetingDate)
                     if (event.meetingOrganizer == userNickname && eventTime.isBefore(localDTime))
-                        EventsDetails(event = event, eventTime = eventTime, places = places)
+                        EventsCard(
+                            event = event,
+                            eventTime = eventTime,
+                            places = places,
+                            navigateToEventsDetails = navigateToEventsDetails,
+                            userNickname = userNickname,
+                            userViewModel = userViewModel
+                        )
                     else if(index == meetingUIState.events.size){
                         Text("У вас нет ваших мероприятий. Сначала создайте своё!")
                     }
@@ -182,12 +215,14 @@ fun EventsList(
 
 
 @Composable
-fun EventsDetails(
+fun EventsCard(
     modifier: Modifier = Modifier,
     event: ApiMeeting,
     eventTime: LocalDateTime,
-    places: List<ApiLocationOfSP>?
-    //onClick: () -> Unit
+    places: List<ApiLocationOfSP>?,
+    navigateToEventsDetails: (Int, Boolean) -> Unit,
+    userNickname: String,
+    userViewModel: UserViewModel
 ) {
     Card(
         modifier = modifier.fillMaxSize(),
@@ -195,6 +230,7 @@ fun EventsDetails(
             containerColor = Colors.ss_BackGround,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        onClick = { event.meetingId?.let { navigateToEventsDetails(it, true) } }
     ) {
         Column(
             modifier = Modifier
@@ -211,12 +247,23 @@ fun EventsDetails(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = event.meetingTitle,
-                        style = MaterialTheme.typography.headlineMedium,
-                        maxLines = 1,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        Row(modifier = Modifier){
+                            Text(
+                                text = event.meetingTitle,
+                                style = MaterialTheme.typography.headlineMedium,
+                                maxLines = 1,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        if (event.meetingOrganizer == userNickname){
+                            IconDelete(
+                                userViewModel = userViewModel,
+                                event = event
+                            )
+                        }
+                    }
                     Row(modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(
@@ -249,7 +296,54 @@ fun EventsDetails(
     }
 }
 
-
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IconDelete(
+    userViewModel: UserViewModel,
+    event: ApiMeeting
+) {
+    val showdialog = remember{mutableStateOf(false)}
+    if (showdialog.value){
+        BasicAlertDialog(onDismissRequest = {
+            showdialog.value = false
+        },
+            modifier = Modifier
+                .background(Color.White)
+                .padding(16.dp)) {
+            Column {
+                Text(modifier = Modifier.align(Alignment.Start),
+                    text = event.meetingTitle,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "Точно хотите удалить мероприятие?")
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    ClickableText(
+                        text = AnnotatedString("Да"),
+                        onClick = {
+                            userViewModel.deleteUserMeeting(event.meetingId!!)
+                            showdialog.value = false},
+                        style = TextStyle(color = Colors.es_Cancel, fontWeight = FontWeight.Bold)
+                    )
+                    ClickableText(
+                        text = AnnotatedString("Нет"),
+                        onClick = {showdialog.value = false },
+                        style = TextStyle(color = Colors.es_Accept, fontWeight = FontWeight.Bold)
+                    )
+                }
+            }
+        }
+    }
+    IconButton(modifier = Modifier,
+        onClick = {showdialog.value = true}) {
+        Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
+    }
+}
 
 @Preview
 @Composable

@@ -82,25 +82,18 @@ interface ApiService {
     @GET("/places")
     suspend fun getAllPlaces(): List<ApiLocationOfSP>
 
-    //Создать встречу
-/*    @POST("/meeting")
-    suspend fun createMeeting(
-        @Body request: ApiMeeting
-    ): String*/
-
     //Изменить информацию о встрече
     @PUT("/meeting/{meetingID}")
     suspend fun updateMeeting(
         @Path("meetingID") meetingID: Int?,
         @Query("body") body: String?,
         @Query("status") status: Boolean?,
-        @Query("geo_marker") geoMarker:List<Double>
     ): String
 
     //Удалить встречу
-    @DELETE("/meeting/{meetingID}")
+    @DELETE("/meeting/{meetingId}")
     suspend fun deleteMeeting(
-        @Path("meeting_id") meetingId: Int?
+        @Path("meetingId") meetingId: Int?
     ): String
 
     //Понравившиеся встречи

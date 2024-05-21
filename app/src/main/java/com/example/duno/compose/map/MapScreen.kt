@@ -1,46 +1,67 @@
 package com.example.duno.compose.map
 
 import android.graphics.PointF
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.duno.R
+import com.example.duno.compose.elements.EventsCard
+import com.example.duno.compose.elements.TextInTwoLines
 import com.example.duno.databinding.FragmentContainerMapBinding
 import com.example.duno.databinding.MapScreenBinding
 import com.example.duno.db.ApiLocationOfSP
 import com.example.duno.ui.Colors
-import com.example.duno.ui.DunoSizes
+import com.example.duno.viewmodel.DunoEventUIState
 import com.example.duno.viewmodel.MapViewModel
+import com.example.duno.viewmodel.MeetingViewModel
 import com.example.duno.viewmodel.UserViewModel
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
@@ -57,10 +78,14 @@ import com.yandex.mapkit.map.SizeChangedListener
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
 import timber.log.Timber
+import java.time.LocalDateTime
 
 @Composable
 fun MapScreenUI(
     goToEvents: () -> Unit,
+    goToEventDetails: (Int, Boolean) -> Unit,
+    userNickname: String,
+    meetingViewModel: MeetingViewModel,
     userViewModel: UserViewModel,
     mapViewModel: MapViewModel,
     innerPadding: PaddingValues
@@ -68,16 +93,19 @@ fun MapScreenUI(
     LaunchedEffect(true){
         userViewModel.getAllPlaces()
     }
-    var isExpanded by remember {mutableStateOf(false)}
+    var isShowClubEvents = remember {mutableStateOf(false)}
     //var openPlace = remember {mutableStateOf(mapViewModel.openPlace)}
     var infoPlace = mapViewModel.openPlaceData.observeAsState().value
-
-    var places = userViewModel.places.observeAsState()
+    val meetingUIState by meetingViewModel.meetingList.observeAsState()
+    val club by mapViewModel.openPlaceData.observeAsState()
     BackHandler(
         onBack = {
-            if (mapViewModel.openPlace) goToEvents()
+            if (!mapViewModel.openPlace) goToEvents()
             else
-                mapViewModel.setValueOP(false)
+                if (isShowClubEvents.value)
+                    isShowClubEvents.value = false
+                else
+                    mapViewModel.setValueOP(false)
         }
     )
     Timber.e(mapViewModel.toString())
@@ -90,69 +118,20 @@ fun MapScreenUI(
         }
         if (mapViewModel.openPlace) {
             Timber.e("doljno otkrit")
-            InfoBottomSheet(mapViewModel, infoPlace!!,innerPadding)
+            InfoBottomSheet(
+                mapViewModel,
+                meetingViewModel,
+                infoPlace!!,
+                innerPadding,
+                meetingUIState,
+                club!!,
+                goToEventDetails,
+                userNickname,
+                meetingUIState!!.favEvents,
+                isShowClubEvents
+            )
         }
-            /*Dialog(
-                onDismissRequest = {
-                    mapViewModel.setValueOP(false)
-                }) {
-                Card(modifier = Modifier
-                    .size(120.dp)
-                    .align(Alignment.Center)) {
-                    Column (modifier = Modifier.fillMaxSize()){
-                        Text(text = infoPlace.nameClub)
-                        Text(text = infoPlace.place)
-
-                        Button(onClick = { }) {
-                            Text(text = "Click")
-
-                        }
-                    }
-                }
-            }*/
-
         Timber.e("Tapped the point/ from compose")
-        /*if (isExpanded) {
-            AnimatedVisibility(
-                visible = isExpanded,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 24.dp),
-            ) {
-                Button(
-                    modifier = Modifier
-                        .size(height = 48.dp, width = 360.dp),
-                    onClick = {
-                        isExpanded = false
-                        Timber.e("Button False")
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Colors.ss_BackGround,
-                        contentColor = Colors.ss_AccentColor)
-                ){
-                    Text(text = "Организуем тут")
-                }
-            }
-        } else {
-            AnimatedVisibility(
-                visible = !isExpanded,
-                modifier = Modifier.align(Alignment.BottomEnd)
-            ) {
-                FloatingActionButton(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = DunoSizes.standartDp, end = DunoSizes.standartDp - 6.dp),
-                    onClick = {
-                        isExpanded = true
-                        Timber.e("Button True")
-                    },
-                    containerColor = Colors.es_Background,
-                    contentColor = Colors.ss_AccentColor
-                ){
-                    Icon(modifier = Modifier.size(DunoSizes.standartDp), imageVector = Icons.Filled.Add, contentDescription = null)
-                }
-            }
-        }*/
     }
 }
 
@@ -160,42 +139,141 @@ fun MapScreenUI(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoBottomSheet(
-    openPlace: MapViewModel,
+    mapViewModel: MapViewModel,
+    meetingViewModel: MeetingViewModel,
     infoPlace: ApiLocationOfSP,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    meetingUIState: DunoEventUIState?,
+    club: ApiLocationOfSP,
+    goToEventDetails: (Int, Boolean) -> Unit,
+    userNickname: String,
+    userLikes: List<Int>,
+    isShowClubEvents: MutableState<Boolean>
 ) {
+    var placeHasEvents = remember { mutableStateOf(meetingUIState!!.events.find {it.meetingOrganizer != userNickname
+            && LocalDateTime.parse(it.meetingDate).isAfter(LocalDateTime.now())
+            && it.meetingGeoMarker==mapViewModel.openPlaceData.value!!.geoMarker}==null)}
     ModalBottomSheet(
         windowInsets = WindowInsets(bottom = innerPadding.calculateBottomPadding()),
         modifier = Modifier.padding(bottom = 20.dp),
-        onDismissRequest = { openPlace.setValueOP(false) },
+        onDismissRequest = {
+            isShowClubEvents.value = false
+            mapViewModel.setValueOP(false)
+                           },
         containerColor = Color.White) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
         ) {
-            Text(
-                text = infoPlace.nameClub,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                color = Colors.md_PrimaryContainer
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = DunoSizes.tinyDp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = "Адрес:",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Text(
-                    text = infoPlace.place,
-                    style = MaterialTheme.typography.titleMedium,
+            val listState = rememberLazyListState()
+            AnimatedVisibility(visible = isShowClubEvents.value) {
+                AnimatedVisibility(visible = placeHasEvents.value) {
+                    Box(modifier = Modifier.fillMaxWidth()){
+                        Column (modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally){
+                            Text("Похоже здесь ещё нет мероприятий...",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                overflow = TextOverflow.Ellipsis)
+                            Spacer(Modifier.height(4.dp))
+                            Icon(modifier = Modifier.size(60.dp), painter = painterResource(R.drawable.icon_dice6_48), contentDescription = null, tint=Color.Unspecified)
+                            Spacer(Modifier.height(4.dp))
+                            Text("Перейди в профиль и создай своё!",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                }
+                EventsList(
+                    listState,
+                    mapViewModel,
+                    meetingViewModel,
+                    meetingUIState,
+                    goToEventDetails,
+                    club,
+                    userNickname,
+                    userLikes
                 )
             }
+            AnimatedVisibility(visible = !isShowClubEvents.value) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        text = infoPlace.nameClub,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                        color = Colors.md_PrimaryContainer
+                    )
+                    TextInTwoLines(leftText = "Адрес:", rightText = infoPlace.place)
+                    //Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(20),
+                        colors = ButtonDefaults.buttonColors(containerColor = Colors.ss_MainColor),
+                        onClick = {isShowClubEvents.value = true }) {
+                        Text("Посмотреть мероприятия")
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun EventsList(
+    listState: LazyListState,
+    openPlace: MapViewModel,
+    meetingViewModel: MeetingViewModel,
+    meetingUIState: DunoEventUIState?,
+    goToEventDetails: (Int, Boolean) -> Unit,
+    club: ApiLocationOfSP,
+    userNickname: String,
+    userLikes: List<Int>,
+    ) {
+    var userEvents by remember{ mutableStateOf(false) }
+    var localDTime = LocalDateTime.now()
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Timber.e("MapInfoBottomSheetEvents")
+        itemsIndexed(meetingUIState!!.events) { index, event ->
+            val distance =  FloatArray(1)
+            Location.distanceBetween(
+                event.meetingGeoMarker[0],
+                event.meetingGeoMarker[1],
+                club.geoMarker[0],
+                club.geoMarker[1],
+                distance
+            )
+            val eventTime = LocalDateTime.parse(event.meetingDate)
+            if (event.meetingOrganizer != userNickname
+                && eventTime.isAfter(localDTime)
+                && calculateDistance(event.meetingGeoMarker[0],
+                    event.meetingGeoMarker[1],
+                    club.geoMarker[0],
+                    club.geoMarker[1])<20f
+            ) {
+                EventsCard(
+                    meetingViewModel = meetingViewModel,
+                    userNickname = userNickname,
+                    event = event,
+                    userLike = userLikes.contains(event.meetingId),
+                    goToEventDetails = goToEventDetails,
+                    userLikes = userLikes,
+                )
+                userEvents = true
+            } else if (index == meetingUIState.events.size) {
+                Text("У вас нет ваших мероприятий. Сначала создайте своё!")
+            }
+        }
+
     }
 }
 
@@ -226,7 +304,7 @@ class MapScreen : Fragment(){
             mapViewModel.openPlace = true
             Timber.e(mapObject.userData.toString())
             map.cameraPosition.run {
-                val position = CameraPosition(point, 13.4f, azimuth, tilt)
+                val position = CameraPosition(point, 14.0f, azimuth, tilt)
                 map.move(position, SMOOTH_ANIMATION, null)
             }
             Timber.e("Tapped the point (${point.longitude}, ${point.latitude})")
@@ -336,17 +414,15 @@ class MapScreen : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val placemark = map.mapObjects.addPlacemark().apply {
-            geometry = Point(59.935493, 30.327392)
-            setIcon(ImageProvider.fromResource(context, R.drawable.icon_d20),
-                IconStyle().apply {
-                    anchor = PointF(0.5f, 1.0f)
-                    scale = 0.08f
-                })
+        val recentPoint = mapViewModel.getStartPoint()
+        val recentPointPosition = CameraPosition(recentPoint, 14.0f, 0f, 0f)
+        if (recentPoint.longitude==0.0 && recentPoint.latitude==0.0) {
+            mapView.mapWindow.map.move(GeometryProvider.startPosition)
         }
-        mapView.mapWindow.map.move(
-            GeometryProvider.startPosition
-        )
+        else{
+            mapView.mapWindow.map.move(recentPointPosition)
+        }
+
     }
 
     override fun onStart() {
@@ -433,6 +509,12 @@ class MapScreen : Fragment(){
             Point(54.705865, 20.514524),
             Point(54.706133, 20.511160),)
     }
+}
+
+private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+    val results = FloatArray(1)
+    Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+    return results[0]
 }
 
 data class PlacemarkUserData(

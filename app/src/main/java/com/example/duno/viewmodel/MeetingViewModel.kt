@@ -67,6 +67,7 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
                 }
         }
     }
+
     fun deleteUserLikes(nickname: String, unlike: Int?) = viewModelScope.launch {
         if (unlike!=null) {
             Timber.tag("MeetingViewModel").e("deleteLike")
@@ -83,6 +84,16 @@ class MeetingViewModel @Inject constructor(private val repository: MeetingReposi
         }
     }
 
+    fun updateOrDelete(meeting: ApiMeeting, delete:Boolean, body:String?, status:Boolean?) =viewModelScope.launch {
+        if (delete){
+            _meetingList.value = _meetingList.value!!.copy(
+                events =  _meetingList.value!!.events.minus(meeting)
+            )
+        }else{
+            meetingList.value!!.events.find { meeting == it}?.meetingBody = body!!
+            meetingList.value!!.events.find { meeting == it}?.meetingStatus = status!!
+        }
+    }
 
 /*    fun getMeeting(meetingID: Int) = viewModelScope.launch {
         repository.getMeeting(meetingID)

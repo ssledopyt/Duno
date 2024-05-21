@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.duno.db.ApiLocationOfSP
+import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     val value: StateFlow<String> = _value.asStateFlow()
 
 
-    private val _openPlaceData = MutableLiveData<ApiLocationOfSP>()
+    private val _openPlaceData = MutableLiveData<ApiLocationOfSP>(ApiLocationOfSP(geoMarker = listOf(0.0,0.0)))
     val openPlaceData: LiveData<ApiLocationOfSP>
         get() = _openPlaceData
 
@@ -27,13 +28,17 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     var openPlace by mutableStateOf(false)
 
-    fun setValue(value: ApiLocationOfSP?) {
+    fun setValue(value: ApiLocationOfSP) {
 
         _openPlaceData.value = value
         openPlace = true
     }
     fun setValueOP(value: Boolean) {
         openPlace = value
+    }
+
+    fun getStartPoint(): Point {
+        return Point(_openPlaceData.value!!.geoMarker[0],_openPlaceData.value!!.geoMarker[1])
     }
 
 }

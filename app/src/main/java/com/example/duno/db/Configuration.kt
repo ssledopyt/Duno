@@ -52,11 +52,11 @@ data class ApiMeeting(
     @SerializedName("genre")
     val meetingGenre: String = "",
     @SerializedName("body")
-    val meetingBody: String = "",
+    var meetingBody: String = "",
     @SerializedName("organizer")
     val meetingOrganizer: String = "",
     @SerializedName("status")
-    val meetingStatus: Boolean = true,
+    var meetingStatus: Boolean = true,
     @SerializedName("geo_marker")
     val meetingGeoMarker: List<Double>,
     @SerializedName("count_players")
@@ -112,18 +112,18 @@ data class ApiLocationOfSP(
 
 
 data class ApiGame(
-/*    @SerializedName("game_id")
-    val gameId: Int = 0,*/
+    @SerializedName("game_id")
+    val gameId: Int = 0,
     @SerializedName("game_name")
-    val gameName: String = "",
-/*    @SerializedName("genre")
-    val gameGenre: String = "",
+    val gameName: String = "Информация отсутствует",
+    @SerializedName("genre")
+    val gameGenre: String = "Информация отсутствует",
     @SerializedName("count_players")
-    val gameCountPlayers: Byte = 0,
+    val gameCountPlayers: Int = 0,
     @SerializedName("game_time")
-    val gameTime: Byte = 0,
+    val gameTime: String = "Информация отсутствует",
     @SerializedName("description")
-    val gameDescription: String = ""*/
+    val gameDescription: String = "Информация отсутствует"
 )
 
 data class ApiLikes(

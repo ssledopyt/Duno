@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -52,7 +53,6 @@ fun DunoNavGraph(
     isLoggedIn: Boolean,
     userName: String,
     userNickname: String,
-    selectedDestination: String,
     innerPadding: PaddingValues,
 
     ){
@@ -65,13 +65,12 @@ fun DunoNavGraph(
             //navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
             val coroutineScope = rememberCoroutineScope()
             EventsScreen(
-                goToEventDetails = { eventId ->
-                    navController.navigate("${DunoScreens.ABOUT_EVENT_SCREEN}/$eventId")
+                goToEventDetails = { eventId, showButtonDeleteLike ->
+                    navController.navigate("${DunoScreens.ABOUT_EVENT_SCREEN}/$eventId/$showButtonDeleteLike")
                 },
                 userNickname,
                 meetingViewModel,
                 userViewModel,
-                navController
             )
             //username,is logged
         }
@@ -88,12 +87,15 @@ fun DunoNavGraph(
                 goToEvents = {
                     navController.navigateSingleTopTo(DunoScreens.EVENTS_SCREEN)
                 },
+                goToEventDetails = {eventId, showButtonDeleteLike ->
+                    navController.navigate("${DunoScreens.ABOUT_EVENT_SCREEN}/$eventId/$showButtonDeleteLike")
+                },
+                userNickname,
+                meetingViewModel,
                 userViewModel,
                 mapViewModel,
                 innerPadding
             )
-            //username,is logged
-
         }
         composable(DunoScreens.PROFILE_SCREEN){
             ProfileScreen(
@@ -113,7 +115,6 @@ fun DunoNavGraph(
                 userName,
                 userNickname,
             )
-            //username,is logged
         }
         composable("${DunoScreens.USER_EVENTS_SCREEN}/{title}", arguments = listOf(navArgument("title") { type = NavType.StringType })
         ){
@@ -124,17 +125,31 @@ fun DunoNavGraph(
                     navigateToProfile = {
                         navController.popBackStack()
                     },
-                    userViewModel = userViewModel)
+                    userViewModel = userViewModel,
+                    navigateToEventsDetails = {eventId, showButtonDeleteLike ->
+                        navController.navigate("${DunoScreens.ABOUT_EVENT_SCREEN}/$eventId/$showButtonDeleteLike")
+                    })
             }
         }
-        composable("${DunoScreens.ABOUT_EVENT_SCREEN}/{eventId}", arguments = listOf(navArgument("eventId") { type = NavType.IntType})){
-            it.arguments?.getInt("eventId")?.let {eventId ->
-                Timber.e(eventId.toString())
-                EventDetailsScreen(
-                    eventId = eventId,
-                    meetingViewModel
-                )
-            }
+        composable(
+            "${DunoScreens.ABOUT_EVENT_SCREEN}/{eventId}/{showButtonDeleteLike}",
+            arguments = listOf(
+                navArgument("eventId") { type = NavType.IntType},
+                navArgument("showButtonDeleteLike") { type = NavType.BoolType},
+            )
+        ){
+            val eventId = it.arguments!!.getInt("eventId")
+            val showButtonDeleteLike = it.arguments!!.getBoolean("showButtonDeleteLike")
+            Timber.e(eventId.toString())
+            EventDetailsScreen(
+                eventId = eventId,
+                onBack = {navController.popBackStack()},
+                meetingViewModel,
+                userViewModel,
+                showButtonDeleteLike,
+                userNickname,
+                innerPadding
+            )
         }
         composable(DunoScreens.ADD_EDIT_EVENT_SCREEN){
             CreateEventScreen(
@@ -259,6 +274,7 @@ fun MainApp(
         bottomBar = {
             if (!noBottom.contains(selectedDestination))
             {
+                HorizontalDivider(Modifier.fillMaxWidth().height(2.dp))
                 BottomAppBar(
                     modifier = Modifier.height(60.dp),
                     containerColor = Colors.md_Surface,
@@ -277,7 +293,7 @@ fun MainApp(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             DunoNavGraph(
-                userViewModel,meetingViewModel,mapViewModel, navController, isLoggedIn, userName, userNickname, selectedDestination, innerPadding
+                userViewModel,meetingViewModel,mapViewModel, navController, isLoggedIn, userName, userNickname, innerPadding
             )
         }
     }

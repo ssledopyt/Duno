@@ -49,7 +49,6 @@ interface ApiService {
         @Query("user_nickname") nickname: String?,
         @Query("count_players") countPlayers: Int?,
         @Query("meeting_time") meetingTime: String?,
-        @Query("closed_at") closedAt: String?,
     ): String
 
     //Изменить данные пользователя

@@ -85,8 +85,7 @@ class UserRepository @Inject constructor(private val apiService: ApiService): Us
             nickname = meeting.meetingOrganizer,
             countPlayers = meeting.meetingCountPlayers,
             meetingTime = meeting.meetingDate,
-            genre = meeting.meetingGenre,
-            closedAt = meeting.meetingClosed
+            genre = meeting.meetingGenre
         )
         emit(DataStatus.success(newMeeting))
     }.catch {

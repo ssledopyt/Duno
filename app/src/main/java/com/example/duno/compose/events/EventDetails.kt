@@ -155,7 +155,6 @@ fun EventDetailsScreen(
                             .background(Color.White)) {
                             EventStatusChip(radioStatus)
                             EventDateTime(
-                                event.meetingClosed,
                                 event.meetingDate)
                             EventHint(hintShow)
                             Column (Modifier.fillMaxSize()) {
@@ -413,8 +412,7 @@ fun EventStatusChip(status: Boolean) {
 }
 
 @Composable
-fun EventDateTime(closedAt: String, startsAt: String) {
-    val closedAtDate = LocalDateTime.parse(closedAt)
+fun EventDateTime(startsAt: String) {
     val startsAtDate = LocalDateTime.parse(startsAt)
     Column (
         Modifier

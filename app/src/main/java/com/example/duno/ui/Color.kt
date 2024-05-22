@@ -18,6 +18,7 @@ object Colors {
     val es_MainColor3 = Color("#210601".toColorInt())
     val es_Card = Color("#f3a333".toColorInt())
     val es_AttentionCard = Color("#FFE4C4".toColorInt())
+    val es_CreatingTextField = Color("#dee2e6".toColorInt())
 
     val es_Cancel = Color(188,71,73)
     val es_Accept = Color(178, 236, 93)

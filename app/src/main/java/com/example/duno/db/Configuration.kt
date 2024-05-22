@@ -63,8 +63,6 @@ data class ApiMeeting(
     val meetingCountPlayers: Int = 0,
     @SerializedName("meeting_time")
     val meetingDate: String,
-    @SerializedName("closed_at")
-    val meetingClosed: String = "",
     @SerializedName("name_of_club")
     val clubName: String = "",
 ){
@@ -79,7 +77,6 @@ data class ApiMeeting(
         val meetingGeoMarker = Point(55.963143, 38.044838)
         val meetingCountPlayers = 3
         val meetingCreated = "String"
-        val meetingClosed = "2024-04-29T18:28:45.000"
         val meetingDate = "2024-04-29T18:28:45.000"
         val clubName = "12 Ярдов"
     }

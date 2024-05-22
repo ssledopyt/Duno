@@ -2,6 +2,7 @@ package com.example.duno.compose.profile
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,12 +15,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -33,6 +36,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,28 +74,32 @@ fun ProfileScreen(
     BackHandler {
         goToEvents()
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Colors.es_Background),
     ) {
         // Отображение имени и фамилии
-        TopBarProfile(userName,userNickname)
+        TopBarProfile()
+        panelProfileNickname(userName, userNickname)
         Spacer(Modifier.height(ProfileDefaultPadding))
         Box(modifier = Modifier
             .align(Alignment.CenterHorizontally)
-            .size(200.dp)){
+            .height(170.dp)
+            .padding(16.dp)
+        ){
             CardAddingEvent(goToAddEvent)
         }
         Column(modifier = Modifier.fillMaxWidth()) {
             ClickableTextProfile(text = "Мои мероприятия", onClick = { goToUserEvents("Мои мероприятия") })
-            ClickableTextProfile(text = "Избранное", onClick = { goToUserEvents("Избранное") })
-            ClickableTextProfile(text = "Архив событий", onClick = { goToUserEvents("Архив событий") })
+            ClickableTextProfile(text = "Избранное", onClick = { goToUserEvents("Избранное")})
+            ClickableTextProfile(text = "Архив событий", onClick = { goToUserEvents("Архив событий")})
         }
         Spacer(Modifier.height(ProfileDefaultPadding))
         AboutApp()
         Spacer(Modifier.height(ProfileDefaultPadding))
-        Box (modifier = Modifier.fillMaxSize()){
+        Box (modifier = Modifier.fillMaxWidth()){
             ExitUser(userViewModel,goToSignUp)
         }
     }
@@ -129,7 +138,8 @@ fun CardAddingEvent(
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Твое мероприятие",
                             style = MaterialTheme.typography.headlineMedium,
@@ -140,7 +150,7 @@ fun CardAddingEvent(
                             onClick = {
                                 goToAddEvent()
                             }) {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = null, tint = Color.Red)
+                                Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = null, tint = Color.Red)
                         }
                     }
                 }
@@ -149,7 +159,7 @@ fun CardAddingEvent(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Найди новых друзей и новых знакомых!",
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Normal,
                 maxLines = 2
             )
@@ -160,23 +170,27 @@ fun CardAddingEvent(
 
 @Composable
 fun ClickableTextProfile(text: String, onClick: () -> Unit){
-    Row {
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = DunoSizes.standartDp, vertical = DunoSizes.smallDp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            //Icon(imageVector = Icons.Rounded.DateRange, contentDescription = null)
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = DunoSizes.smallDp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Row(horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                modifier = Modifier.size(24.dp),
+                imageVector = Icons.Rounded.DateRange,
+                contentDescription = null
+            )
             ClickableText(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = DunoSizes.mediumDp),
+                    .padding(start = 12.dp, end = DunoSizes.mediumDp),
                 text = AnnotatedString(text),
-                onClick = {onClick()})
-            Icon(imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null)
+                onClick = { onClick() })
         }
+        Icon(imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null)
     }
 }
 
@@ -189,7 +203,7 @@ fun AboutApp() {
         shape = RoundedCornerShape(4.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = DunoSizes.smallDp, end = DunoSizes.smallDp)
+            .padding(horizontal = 16.dp)
             .height(40.dp)
         ) {
         Text(text = "Помощь")
@@ -203,17 +217,51 @@ fun ExitUser(
 ) {
     var corot = rememberCoroutineScope()
     val context  = LocalContext.current
-    Button(onClick = {
-        Toast.makeText(
-            context,
-            "Выходим...",
-            Toast.LENGTH_LONG
-        ).show()
-        corot.launch {
-            delay(3000)
-            userViewModel.logOutUser()
-            goToSignUp()
+    var alert = remember { mutableStateOf(false) }
+    var exit = remember {mutableStateOf(false)}
+
+    AnimatedVisibility(visible = alert.value) {
+        AlertDialog(onDismissRequest = { alert.value=false },
+            dismissButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(containerColor = Colors.ss_BackGround),
+                    onClick = { alert.value = false }) {
+                    Text(text = "Нет", color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleSmall)
+                }
+            },
+            confirmButton = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(containerColor = Colors.ss_BackGround),
+                    onClick = { exit.value = true}) {
+                    Text(text = "Да", color = Colors.es_Cancel,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleSmall)
+                }
+        },
+            containerColor = Colors.ss_BackGround,
+            title = {
+                Text(text = "Вы точно хотите выйти?",
+                style = MaterialTheme.typography.headlineSmall)})
+    }
+    if (exit.value) {
+        LaunchedEffect(true) {
+            Toast.makeText(
+                context,
+                "Выходим...",
+                Toast.LENGTH_LONG
+            ).show()
+            corot.launch {
+                delay(3000)
+                userViewModel.logOutUser()
+                goToSignUp()
+            }
         }
+    }
+    Button(onClick = {
+        alert.value=true
+
     },
         shape = RoundedCornerShape(DunoSizes.standartDp),
         modifier = Modifier
@@ -232,36 +280,70 @@ fun ExitUser(
 
 @Composable
 fun TopBarProfile(
-    userName: String,
-    userNickname: String,
+
 ) {
     Box(
         modifier = Modifier
-            .height(120.dp)
+            .height(90.dp)
             .fillMaxWidth()
-            .background(Colors.md_PrimaryContainer)
+            .background(Colors.es_Background)
     ){
         Column {
             Text(
-                text = userName,
-                style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
-                    .wrapContentWidth()
-                    .padding(top = DunoSizes.standartDp)
-                //modifier = modifier.align(Alignment.CenterHorizontally)
+                    .padding(top = 24.dp, start = 16.dp),
+                text = "Профиль",
+                style = MaterialTheme.typography.displaySmall,
+                )
+        }
+    }
+
+}
+
+@Composable
+fun panelProfileNickname(
+    userName: String,
+    userNickname: String,
+){
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp)) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally)
+                .background(Colors.ss_AccentColor)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Icon(
+                modifier = Modifier.size(36.dp),
+                imageVector = Icons.Filled.Person,
+                contentDescription = null,
+                tint = Color.White
             )
-            Text(
-                text = userNickname,
-                modifier = Modifier
-                    .padding()
-                    .align(Alignment.CenterHorizontally),
-                style = MaterialTheme.typography.labelLarge,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal,
-                color = Color.DarkGray
-            )
+            Column (Modifier.padding(horizontal = 8.dp)){
+                Text(
+                    text = userName,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    color = Color.White
+
+                    //modifier = modifier.align(Alignment.CenterHorizontally)
+                )
+                Text(
+                    text = userNickname,
+                    modifier = Modifier
+                        .padding(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.White
+                )
+            }
         }
     }
 }

@@ -9,13 +9,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +28,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -49,12 +55,17 @@ import com.example.duno.db.ApiGame
 import com.example.duno.db.ApiGenre
 import com.example.duno.db.ApiLocationOfSP
 import com.example.duno.db.ApiMeeting
+import com.example.duno.ui.Colors
 import com.example.duno.ui.DunoSizes
 import com.example.duno.viewmodel.UserViewModel
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.TimePickerLayoutType
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -116,25 +127,32 @@ fun CreateEventScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderText(
-            text = "Мероприятие",
+            text = "Ваше мероприятие",
             modifier = Modifier
-                .padding(vertical = DunoSizes.smallDp)
+                .padding(16.dp)
                 .align(alignment = Alignment.CenterHorizontally)
         )
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
+                .padding(horizontal = 16.dp),
             value = eventName,
             onValueChange = { eventName = it },
-            label = { Text("Название мероприятия") }
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Colors.es_CreatingTextField,
+                disabledContainerColor = Colors.es_CreatingTextField,
+                focusedContainerColor = Colors.es_CreatingTextField
+            ),
+            label = {
+                if (eventName=="") Text("Название мероприятия")
+            }
         )
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
         //GAME
         ExposedDropdownMenuBox(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
+                .padding(horizontal = 16.dp),
             expanded = expandedGame,
             onExpandedChange = { expandedGame = !expandedGame }) {
             TextField(
@@ -147,7 +165,11 @@ fun CreateEventScreen(
                         expanded = expandedGame
                     )
                 },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    unfocusedContainerColor = Colors.es_CreatingTextField,
+                    disabledContainerColor = Colors.es_CreatingTextField,
+                    focusedContainerColor = Colors.es_CreatingTextField
+                ),
                 modifier = Modifier.menuAnchor()
             )
             ExposedDropdownMenu(
@@ -157,7 +179,7 @@ fun CreateEventScreen(
                 }
             ) {
                 Timber.e("trying to load list1")
-                if (games[0]==null || games.isEmpty()) {
+                if (games.isEmpty() || games[0]==null) {
                     if (!coroutineScope.coroutineContext.isActive){
                         launch = true
                     }
@@ -184,7 +206,7 @@ fun CreateEventScreen(
         ExposedDropdownMenuBox(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
+                .padding(horizontal = 16.dp),
             expanded = expandedGenre,
             onExpandedChange = { expandedGenre = !expandedGenre }) {
             TextField(
@@ -197,7 +219,11 @@ fun CreateEventScreen(
                         expanded = expandedGenre
                     )
                 },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    unfocusedContainerColor = Colors.es_CreatingTextField,
+                    disabledContainerColor = Colors.es_CreatingTextField,
+                    focusedContainerColor = Colors.es_CreatingTextField
+                ),
                 modifier = Modifier.menuAnchor()
             )
             ExposedDropdownMenu(
@@ -207,7 +233,7 @@ fun CreateEventScreen(
                 }
             ) {
                 Timber.e("trying to load list2")
-                if (genres[0]==null || genres.isEmpty()) {
+                if (genres.isEmpty() || genres[0]==null) {
                     if (!coroutineScope.coroutineContext.isActive){
                         launch = true
                     }
@@ -250,7 +276,7 @@ fun CreateEventScreen(
         ExposedDropdownMenuBox(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
+                .padding(horizontal = 16.dp),
             expanded = expandedPlace,
             onExpandedChange = { expandedPlace = !expandedPlace }) {
             TextField(
@@ -263,7 +289,11 @@ fun CreateEventScreen(
                         expanded = expandedPlace
                     )
                 },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    unfocusedContainerColor = Colors.es_CreatingTextField,
+                    disabledContainerColor = Colors.es_CreatingTextField,
+                    focusedContainerColor = Colors.es_CreatingTextField
+                ),
                 modifier = Modifier.menuAnchor()
             )
             ExposedDropdownMenu(
@@ -273,7 +303,7 @@ fun CreateEventScreen(
                 }
             ) {
                 Timber.e("trying to load list3")
-                if (location[0]==null || location.isEmpty()) {
+                if (location.isEmpty() || location[0]==null) {
                     Text("Загрузка...")
                 }else {
                     location.forEach { locate ->
@@ -317,16 +347,23 @@ fun CreateEventScreen(
             modifier = Modifier
                 .height(200.dp)
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
+                .padding(horizontal = 16.dp),
             value = description,
             onValueChange = { description = it },
-            label = { Text("Описание") }
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Colors.es_CreatingTextField,
+                disabledContainerColor = Colors.es_CreatingTextField,
+                focusedContainerColor = Colors.es_CreatingTextField
+            ),
+            label = {
+                if (description=="") Text("Описание")
+            }
         )
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
+                .padding(horizontal = 16.dp),
             value = playerCount,
             onValueChange = {
                 when {
@@ -335,46 +372,85 @@ fun CreateEventScreen(
                     Regex("").matches(it) -> playerCount = it
                 }
             },
-            label = { Text("Количество игроков (от 1 до 16)") },
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Colors.es_CreatingTextField,
+                disabledContainerColor = Colors.es_CreatingTextField,
+                focusedContainerColor = Colors.es_CreatingTextField
+            ),
+            label = {
+                if (playerCount=="") Text("Количество игроков (от 1 до 16)")
+                    },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
-            horizontalArrangement = Arrangement.SpaceBetween) {
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.Start) {
             TextField(
                 value = TextFieldValue(text = "${date.dayOfMonth}.${date.monthValue+1}.${date.year}"),
                 onValueChange = {},
-                modifier = Modifier,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Colors.es_CreatingTextField,
+                    disabledContainerColor = Colors.es_CreatingTextField,
+                    focusedContainerColor = Colors.es_CreatingTextField
+                ),
+                modifier = Modifier.width(140.dp).padding(end = 16.dp),
+                label = {
+                    Text(text = "Выберите дату")
+                },
                 readOnly = true)
-            Button(onClick = { expandedDate=true }) {
-                
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.LightGray
+                ),
+                onClick = { expandedDate=true }) {
+                Text(text = "Выбрать", maxLines = 1)
             }
         }
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DunoSizes.smallDp),
-            horizontalArrangement = Arrangement.SpaceBetween) {
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.Start) {
             TextField(
                 value = TextFieldValue(text ="${time.hour}:${time.minute}"),
                 onValueChange = {},
-                modifier = Modifier,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Colors.es_CreatingTextField,
+                    disabledContainerColor = Colors.es_CreatingTextField,
+                    focusedContainerColor = Colors.es_CreatingTextField
+                ),
+                modifier = Modifier.width(140.dp).padding(end = 16.dp),
+                label = {
+                    Text(text = "Выберите время")
+                },
                 readOnly = true)
-            Button(onClick = { expandedTime=true }) {
-
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.LightGray
+                ),
+                onClick = { expandedTime=true }) {
+                Text(text = "Выбрать", maxLines = 1)
             }
         }
         if (expandedDate){
             DatePickerDialog(
                 modifier = Modifier.wrapContentSize(),
                 confirmButton = {
-                    Button(onClick = { expandedDate = false }) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                        containerColor = Colors.ss_AccentColor
+                    ),
+                        onClick = { expandedDate = false }
+                    ) {
                     Text(text = "Назначить")}
                 },
+                colors = DatePickerDefaults.colors(
+                        containerColor = Colors.es_Background,
+                ),
                 onDismissRequest = {expandedDate = false},
                 content = {
                     //ShowDatePicker(date)
@@ -406,17 +482,32 @@ fun CreateEventScreen(
                 content = {
                     Card(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)) {
+                        .padding(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Colors.es_Background
+                        )
+                    ) {
                         Column(modifier = Modifier
                             .wrapContentSize()) {
                             TimePicker(state = time,
                                 modifier = Modifier
                                     .wrapContentSize()
-                                    .padding(16.dp))
+                                    .padding(16.dp),
+                                colors = TimePickerDefaults.colors(
+                                    selectorColor = Colors.ss_AccentColor,
+                                    timeSelectorSelectedContainerColor = Colors.es_PrimaryCard,
+                                    clockDialColor = Colors.es_AttentionCard,
+                                    timeSelectorUnselectedContainerColor = Colors.es_Background,
+                                    periodSelectorSelectedContainerColor = Colors.es_PrimaryCard,
+                                    periodSelectorUnselectedContainerColor = Colors.es_Background
+                                ))
                             Button(
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
                                     .padding(bottom = 16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Colors.ss_AccentColor
+                                ),
                                 onClick = { expandedTime = false }) {
                                 Text(text = "Назначить")
                             }
@@ -427,7 +518,9 @@ fun CreateEventScreen(
         }
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
 
-        Button(onClick = {
+        Button(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            onClick = {
             val sqlDate = LocalDateTime.of(
                 date.year,
                 date.monthValue+1,
@@ -451,7 +544,11 @@ fun CreateEventScreen(
                 )
             )
             goToEvents()
-        }) {
+        },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Colors.ss_AccentColor
+            )
+            ) {
             Text("Создать")
         }
     }
@@ -474,39 +571,6 @@ fun ShowTimeePicker() {
     )
 }
 
-@Composable
-fun LayerTime(){
-    val mContext = LocalContext.current
-
-    // Declaring integer values
-    // for year, month and day
-    val mYear: Int
-    val mMonth: Int
-    val mDay: Int
-
-    // Initializing a Calendar
-    val mCalendar = Calendar.getInstance()
-
-    // Fetching current year, month and day
-    mYear = mCalendar.get(Calendar.YEAR)
-    mMonth = mCalendar.get(Calendar.MONTH)
-    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
-
-    mCalendar.time = Date()
-
-    // Declaring a string value to
-    // store date in string format
-    val mDate = remember { mutableStateOf("") }
-
-    // Declaring DatePickerDialog and setting
-    // initial values as current values (present year, month and day)
-    /*val mDatePickerDialog = DatePickerDialog(
-        mContext,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            mDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
-        }, mYear, mMonth, mDay
-    )*/
-}
 
 @Preview
 @Composable

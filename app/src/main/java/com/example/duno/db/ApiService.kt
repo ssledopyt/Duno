@@ -38,7 +38,7 @@ interface ApiService {
         @Query("nickname") nickname: String?,
     ): String
 
-    @POST("/meeting")
+    @POST("/meeting/add")
     suspend fun createMeeting(
         @Query("title") title: String?,
         @Query("game_name") gameName: String?,

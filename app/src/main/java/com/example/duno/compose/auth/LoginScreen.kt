@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
@@ -41,6 +42,7 @@ import androidx.navigation.NavController
 import com.example.duno.R
 import com.example.duno.compose.elements.HeaderText
 import com.example.duno.compose.elements.LoginTextField
+import com.example.duno.ui.Colors
 import com.example.duno.viewmodel.UserViewModel
 import timber.log.Timber
 
@@ -91,7 +93,7 @@ fun LoginScreen(
         LoginTextField(
             value = userNickname,
             onValueChange = setNickname,
-            labelText = "Имя пользователя",
+            labelText = "Никнейм",
             leadingIcon = Icons.Default.Person,
             modifier = Modifier.fillMaxWidth()
         )
@@ -105,7 +107,7 @@ fun LoginScreen(
             keyboardType = KeyboardType.Password,
             visualTransformation = PasswordVisualTransformation()
         )
-        Spacer(Modifier.height(itemSpacing))
+        /*Spacer(Modifier.height(itemSpacing))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -120,7 +122,7 @@ fun LoginScreen(
             TextButton(onClick = {}) {
                 Text("Забыли пароль?")
             }
-        }
+        }*/
         Spacer(Modifier.height(itemSpacing))
         Button(
             onClick = {
@@ -131,11 +133,12 @@ fun LoginScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = isFieldsEmpty
+            enabled = isFieldsEmpty,
+            colors = ButtonDefaults.buttonColors(containerColor = Colors.md_PrimaryContainer)
         ) {
             Text("Войти")
         }
-        AlternativeLoginOptions(
+        /*AlternativeLoginOptions(
             onIconClick = { index ->
                 when (index) {
                     0 -> {
@@ -147,8 +150,18 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .wrapContentSize(align = Alignment.BottomCenter)
-        )
-
+        )*/
+        Spacer(Modifier.height(itemSpacing))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Ещё нет аккаунта?")
+            Spacer(Modifier.height(itemSpacing))
+            TextButton(onClick = onSignUpClick) {
+                Text("Зарегистрироваться")
+            }
+        }
     }
 }
 
@@ -186,17 +199,7 @@ fun AlternativeLoginOptions(
                 Spacer(Modifier.width(defaultPadding))
             }
         }
-        Spacer(Modifier.height(itemSpacing))
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Ещё нет аккаунта?")
-            Spacer(Modifier.height(itemSpacing))
-            TextButton(onClick = onSignUpClick) {
-                Text("Зарегистрироваться")
-            }
-        }
+
     }
 
 }

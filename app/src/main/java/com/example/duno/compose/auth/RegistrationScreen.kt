@@ -14,7 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -31,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +45,7 @@ import androidx.navigation.NavController
 import com.example.duno.compose.elements.HeaderText
 import com.example.duno.compose.elements.LoginTextField
 import com.example.duno.db.ApiUser
+import com.example.duno.ui.Colors
 import com.example.duno.viewmodel.UserViewModel
 import java.time.LocalDate
 
@@ -92,6 +100,7 @@ fun RegistrationScreen(
         LoginTextField(
             value = firstName,
             onValueChange = onFirstNameChange,
+            leadingIcon = Icons.Default.Person,
             labelText = "Имя",
             modifier = Modifier.fillMaxWidth()
         )
@@ -99,12 +108,15 @@ fun RegistrationScreen(
         LoginTextField(
             value = lastName,
             onValueChange = onLastNameChange,
+            leadingIcon = Icons.Default.Person,
             labelText = "Фамилия",
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(Modifier.height(defaultPadding))
         LoginTextField(
             value = nickname,
             onValueChange = onNicknameChange,
+            leadingIcon = Icons.Default.AccountBox,
             labelText = "Никнейм",
             modifier = Modifier.fillMaxWidth()
         )
@@ -112,6 +124,7 @@ fun RegistrationScreen(
         LoginTextField(
             value = email,
             onValueChange = onEmailChange,
+            leadingIcon = Icons.Default.Email,
             labelText = "Почта",
             modifier = Modifier.fillMaxWidth()
         )
@@ -119,17 +132,21 @@ fun RegistrationScreen(
         LoginTextField(
             value = password,
             onValueChange = onPasswordChange,
+            leadingIcon = Icons.Default.Lock,
             labelText = "Пароль",
             modifier = Modifier.fillMaxWidth(),
-            keyboardType = KeyboardType.Password
+            keyboardType = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation()
         )
         Spacer(Modifier.height(defaultPadding))
         LoginTextField(
             value = confirmPassword,
             onValueChange = onConfirmPasswordChange,
+            leadingIcon = Icons.Default.Lock,
             labelText = "Подтвердите пароль",
             modifier = Modifier.fillMaxWidth(),
-            keyboardType = KeyboardType.Password
+            keyboardType = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation()
         )
         Spacer(Modifier.height(defaultPadding))
 /*        Row(
@@ -206,6 +223,7 @@ fun RegistrationScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = isFieldsNotEmpty,
+            colors = ButtonDefaults.buttonColors(containerColor = Colors.md_PrimaryContainer)
         ) {
             Text("Регистрация")
         }

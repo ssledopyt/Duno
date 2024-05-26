@@ -23,4 +23,5 @@ object Colors {
     val es_Cancel = Color(188,71,73)
     val es_Accept = Color(178, 236, 93)
 
+    val vistaWhite = Color("#FDFCFA".toColorInt())
 }

@@ -78,7 +78,7 @@ fun ProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Colors.es_Background),
+            .background(color = Colors.vistaWhite),
     ) {
         // Отображение имени и фамилии
         TopBarProfile()
@@ -97,7 +97,7 @@ fun ProfileScreen(
             ClickableTextProfile(text = "Архив событий", onClick = { goToUserEvents("Архив событий")})
         }
         Spacer(Modifier.height(ProfileDefaultPadding))
-        AboutApp()
+        //AboutApp()
         Spacer(Modifier.height(ProfileDefaultPadding))
         Box (modifier = Modifier.fillMaxWidth()){
             ExitUser(userViewModel,goToSignUp)
@@ -115,7 +115,7 @@ fun CardAddingEvent(
         modifier = Modifier
             .fillMaxSize(),
         colors = CardDefaults.cardColors(
-            containerColor = Colors.ss_BackGround,
+            containerColor = Color.White,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         onClick = {
@@ -284,17 +284,16 @@ fun TopBarProfile(
 ) {
     Box(
         modifier = Modifier
-            .height(90.dp)
+            .height(76.dp)
             .fillMaxWidth()
-            .background(Colors.es_Background)
     ){
         Column {
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, start = 16.dp),
+                    .padding(top = 24.dp, start = 20.dp),
                 text = "Профиль",
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.headlineSmall,
                 )
         }
     }

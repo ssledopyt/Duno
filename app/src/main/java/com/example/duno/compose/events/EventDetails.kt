@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +65,8 @@ import androidx.core.graphics.toColorInt
 import androidx.lifecycle.LiveData
 import com.example.duno.compose.elements.TextInLineWithSpace
 import com.example.duno.compose.elements.TextInTwoLines
+import com.example.duno.compose.elements.get_correct_dateTime
+import com.example.duno.compose.elements.get_month
 import com.example.duno.db.ApiGame
 import com.example.duno.db.ApiMeeting
 import com.example.duno.ui.Colors
@@ -84,7 +87,8 @@ fun EventDetailsScreen(
     userViewModel: UserViewModel,
     showButtonDeleteLike: Boolean,
     userNickname: String,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    userName: String
 ) {
     val events = meetingViewModel.meetingList.value
     var hintShow = remember { mutableStateOf(true) }
@@ -112,9 +116,9 @@ fun EventDetailsScreen(
                 TopAppBar(
                     modifier = Modifier.height(48.dp),
                     title = { Box(Modifier.fillMaxSize()) {
-                        Text(
+                        /*Text(
                             modifier = Modifier.align(Alignment.CenterStart),
-                            text = "О мероприятии")
+                            text = "О мероприятии")*/
                     }},
                     navigationIcon = {
                         IconButton(onClick = {
@@ -123,6 +127,9 @@ fun EventDetailsScreen(
                             Icon(Icons.Filled.ArrowBack, contentDescription = "Назад")
                         }
                     },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.White,
+                    ),
                 )
             },
             containerColor = Color.White,
@@ -224,7 +231,7 @@ fun EventDetailsScreen(
                                     EventDescription(
                                         Modifier.fillMaxSize(),
                                         event.meetingCountPlayers.toString(),
-                                        event.meetingOrganizer,
+                                        userName,
                                         event.meetingBody
                                     )
                                 }
@@ -426,8 +433,8 @@ fun EventDateTime(startsAt: String) {
                 //modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
-                text = "${startsAtDate.dayOfMonth}.${startsAtDate.monthValue}.${startsAtDate.year} " +
-                        "в ${startsAtDate.hour}:${startsAtDate.minute}",
+                text = "${get_correct_dateTime(startsAtDate.dayOfMonth)} ${get_month(startsAtDate.monthValue)} " +
+                        "в ${get_correct_dateTime(startsAtDate.hour)}:${get_correct_dateTime(startsAtDate.minute)}",
                 style = MaterialTheme.typography.bodyMedium,
                 //modifier = Modifier.align(Alignment.CenterHorizontally).padding(8.dp)
             )

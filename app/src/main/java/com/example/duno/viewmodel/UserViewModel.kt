@@ -159,6 +159,14 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    fun getUserName() = viewModelScope.launch(Dispatchers.IO) {
+        session.getUserName().catch {
+            //nothing?
+            Timber.e(it.message)
+        }.collect{
+            _userState.value = _userState.value!!.copy(userName = it)
+        }
+    }
 
     //Выход пользователя из системы
     fun logOutUser(){

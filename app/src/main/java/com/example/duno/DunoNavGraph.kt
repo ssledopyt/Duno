@@ -1,6 +1,7 @@
 package com.example.duno
 
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -148,14 +150,15 @@ fun DunoNavGraph(
                 userViewModel,
                 showButtonDeleteLike,
                 userNickname,
-                innerPadding
+                innerPadding,
+                userName
             )
         }
         composable(DunoScreens.ADD_EDIT_EVENT_SCREEN){
             CreateEventScreen(
                 userViewModel,
                 goToEvents ={
-                    navController.previousBackStackEntry
+                    navController.popBackStack()
                 },
             )
             //username,is logged
@@ -258,7 +261,6 @@ fun MainApp(
                 modifier = Modifier.height(60.dp),
                 colors = topAppBarColors(
                     containerColor = Colors.md_Surface,
-                    titleContentColor = Colors.md_Background,
                 ),
                 title = {
                     Box(modifier = Modifier.fillMaxSize()){
@@ -274,22 +276,32 @@ fun MainApp(
         bottomBar = {
             if (!noBottom.contains(selectedDestination))
             {
-                HorizontalDivider(Modifier.fillMaxWidth().height(2.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.SpaceEvenly)
+                {
+                HorizontalDivider(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(0.5.dp)
+                        .background(Color.LightGray))
                 BottomAppBar(
                     modifier = Modifier.height(60.dp),
                     containerColor = Colors.md_Surface,
                 ) {
-                    CommonUI(
-                        navController = navController,
-                        selectedDestination = selectedDestination,
-                    )
+                        CommonUI(
+                            navController = navController,
+                            selectedDestination = selectedDestination,
+                        )
+                    }
                 }
             }
         },
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .background(Colors.vistaWhite),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             DunoNavGraph(

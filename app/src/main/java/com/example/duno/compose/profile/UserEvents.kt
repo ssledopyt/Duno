@@ -47,6 +47,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.duno.compose.elements.EventsCard
+import com.example.duno.compose.elements.get_correct_dateTime
+import com.example.duno.compose.elements.get_month
 import com.example.duno.db.ApiLocationOfSP
 import com.example.duno.viewmodel.DunoEventUIState
 import com.example.duno.db.ApiMeeting
@@ -79,10 +82,8 @@ fun UserEventsProfile(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.inverseOnSurface)
             //       .verticalScroll(rememberScrollState())
             .semantics { contentDescription = "UserEventsProfile" }
-            .background(color = Colors.es_Background),
 
     ) {
         val userUIState = userViewModel.places.observeAsState()
@@ -95,11 +96,10 @@ fun UserEventsProfile(
                 Icon(imageVector = Icons.Filled.KeyboardArrowLeft,contentDescription = null)
             }*/
             Text(title,
-                modifier = Modifier.align(Alignment.Center),
-                style = MaterialTheme.typography.titleMedium)
+                modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                style = MaterialTheme.typography.headlineSmall)
         }
         Box(modifier = Modifier
-            .padding(top = DunoSizes.tinyDp)
             .padding(horizontal = DunoSizes.tinyDp)){
             val listState = rememberLazyListState()
             val coroutineScope = rememberCoroutineScope()
@@ -114,7 +114,14 @@ fun UserEventsProfile(
                 Text(modifier = Modifier.fillMaxSize(), text = "internet?")
             }
             else {
-                EventsList(listState, meetingUIState, userUIState.value, userNickname, navigateToEventsDetails, userViewModel)
+                EventsList(
+                    listState,
+                    meetingUIState,
+                    userUIState.value,
+                    userNickname,
+                    navigateToEventsDetails,
+                    userViewModel,
+                    meetingViewModel)
             }
             /*FloatingActionButton(
                 modifier = Modifier
@@ -139,7 +146,8 @@ fun EventsList(
     places: List<ApiLocationOfSP>?,
     userNickname: String,
     navigateToEventsDetails: (Int, Boolean) -> Unit,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    meetingViewModel: MeetingViewModel
 ) {
     var userEvents by remember{ mutableStateOf(false) }
     var localDTime = LocalDateTime.now()
@@ -149,7 +157,7 @@ fun EventsList(
         modifier = Modifier
             .fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Timber.e("UserEvents")
         when (viewUserEvents.value){
@@ -157,7 +165,7 @@ fun EventsList(
                 itemsIndexed(meetingUIState!!.events) {index, event ->
                     val eventTime = LocalDateTime.parse(event.meetingDate)
                     if (event.meetingOrganizer == userNickname && eventTime.isAfter(localDTime)) {
-                        EventsCard(
+                        EventCardOfUser(
                             event = event,
                             eventTime = eventTime,
                             places = places,
@@ -167,7 +175,7 @@ fun EventsList(
                         )
                         userEvents = true
                     }
-                    else if(index == meetingUIState.events.size){
+                    else if(index == 0){
                         Text("У вас нет ваших мероприятий. Сначала создайте своё!")
                     }
                 }
@@ -175,7 +183,7 @@ fun EventsList(
             "Избранное" ->{
                 if (meetingUIState!!.favEvents.isEmpty()) {
                     items(1) {
-                        Text("У вас нет избранных мероприятий. Добавьте его, чтобы начать следить за встречами")
+                        Text(text="У вас нет избранных мероприятий. Добавьте его, чтобы начать следить за встречами!")
                     }
                 }else{
                     items(meetingUIState.events) {event ->
@@ -183,11 +191,11 @@ fun EventsList(
                         if (meetingUIState.favEvents.contains(event.meetingId))
                             EventsCard(
                                 event = event,
-                                eventTime = eventTime,
-                                places = places,
-                                navigateToEventsDetails = navigateToEventsDetails,
+                                meetingViewModel = meetingViewModel,
+                                userLike = true,
+                                userLikes = meetingUIState.favEvents,
+                                goToEventDetails = navigateToEventsDetails,
                                 userNickname = userNickname,
-                                userViewModel = userViewModel
                             )
                     }
                 }
@@ -196,7 +204,7 @@ fun EventsList(
                 itemsIndexed(meetingUIState!!.events) {index, event ->
                     val eventTime = LocalDateTime.parse(event.meetingDate)
                     if (event.meetingOrganizer == userNickname && eventTime.isBefore(localDTime))
-                        EventsCard(
+                        EventCardOfUser(
                             event = event,
                             eventTime = eventTime,
                             places = places,
@@ -204,8 +212,8 @@ fun EventsList(
                             userNickname = userNickname,
                             userViewModel = userViewModel
                         )
-                    else if(index == meetingUIState.events.size){
-                        Text("У вас нет ваших мероприятий. Сначала создайте своё!")
+                    else if(index == 0){
+                        Text("У вас нет ваших мероприятий. Либо они ещё не прошли.")
                     }
                 }
             }
@@ -215,7 +223,7 @@ fun EventsList(
 
 
 @Composable
-fun EventsCard(
+fun EventCardOfUser(
     modifier: Modifier = Modifier,
     event: ApiMeeting,
     eventTime: LocalDateTime,
@@ -227,7 +235,7 @@ fun EventsCard(
     Card(
         modifier = modifier.fillMaxSize(),
         colors = CardDefaults.cardColors(
-            containerColor = Colors.ss_BackGround,
+            containerColor = Color.White,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         onClick = { event.meetingId?.let { navigateToEventsDetails(it, true) } }
@@ -274,8 +282,8 @@ fun EventsCard(
 
                             )
                         Text(
-                            text = "${eventTime.dayOfMonth}.${eventTime.monthValue}.${eventTime.year} " +
-                                    "в ${eventTime.hour}:${eventTime.minute}",
+                            text = "${get_correct_dateTime(eventTime.dayOfMonth)} ${get_month(eventTime.monthValue)} " +
+                                    "в ${get_correct_dateTime(eventTime.hour)}:${get_correct_dateTime(eventTime.minute)}",
                             //style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Light,
                             maxLines = 1,

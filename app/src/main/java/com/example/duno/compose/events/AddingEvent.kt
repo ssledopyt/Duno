@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -26,6 +27,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -61,6 +66,8 @@ import com.example.duno.viewmodel.UserViewModel
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.ui.graphics.Color
+import com.example.duno.compose.elements.get_correct_dateTime
+import com.example.duno.compose.elements.get_month
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -143,9 +150,10 @@ fun CreateEventScreen(
                 disabledContainerColor = Colors.es_CreatingTextField,
                 focusedContainerColor = Colors.es_CreatingTextField
             ),
-            label = {
+            placeholder = {
                 if (eventName=="") Text("Название мероприятия")
-            }
+            },
+            maxLines = 1,
         )
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
         //GAME
@@ -309,7 +317,11 @@ fun CreateEventScreen(
                     location.forEach { locate ->
                         DropdownMenuItem(
                             text = {
-                                Text("${locate!!.nameClub}: ${locate.place}")
+                                Column {
+                                    Text(text = locate!!.nameClub, style = MaterialTheme.typography.titleSmall)
+                                    Text(text = locate.place, style = MaterialTheme.typography.bodySmall)
+                                    HorizontalDivider(thickness = 1.dp, modifier = Modifier.fillMaxWidth().padding(24.dp).align(Alignment.Start))
+                                }
                             },
                             onClick = {
                                 selectedPlace.clear()
@@ -317,7 +329,7 @@ fun CreateEventScreen(
                                 Timber.e(selectedPlace.keys.toString())
                                 Timber.e(selectedPlace.toString())
                                 expandedPlace = false
-                            }
+                            },
                         )
                     }
                 }
@@ -355,7 +367,7 @@ fun CreateEventScreen(
                 disabledContainerColor = Colors.es_CreatingTextField,
                 focusedContainerColor = Colors.es_CreatingTextField
             ),
-            label = {
+            placeholder = {
                 if (description=="") Text("Описание")
             }
         )
@@ -377,7 +389,7 @@ fun CreateEventScreen(
                 disabledContainerColor = Colors.es_CreatingTextField,
                 focusedContainerColor = Colors.es_CreatingTextField
             ),
-            label = {
+            placeholder = {
                 if (playerCount=="") Text("Количество игроков (от 1 до 16)")
                     },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -389,14 +401,16 @@ fun CreateEventScreen(
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.Start) {
             TextField(
-                value = TextFieldValue(text = "${date.dayOfMonth}.${date.monthValue+1}.${date.year}"),
+                value = TextFieldValue(text = "${get_correct_dateTime(date.dayOfMonth)} ${get_month(date.monthValue+1)} ${date.year}"),
                 onValueChange = {},
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Colors.es_CreatingTextField,
                     disabledContainerColor = Colors.es_CreatingTextField,
                     focusedContainerColor = Colors.es_CreatingTextField
                 ),
-                modifier = Modifier.width(140.dp).padding(end = 16.dp),
+                modifier = Modifier
+                    .width(180.dp)
+                    .padding(end = 16.dp),
                 label = {
                     Text(text = "Выберите дату")
                 },
@@ -406,7 +420,7 @@ fun CreateEventScreen(
                     containerColor = Color.LightGray
                 ),
                 onClick = { expandedDate=true }) {
-                Text(text = "Выбрать", maxLines = 1)
+                Text(text = "Выбрать", maxLines = 1, color = Color.Black )
             }
         }
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
@@ -416,14 +430,16 @@ fun CreateEventScreen(
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.Start) {
             TextField(
-                value = TextFieldValue(text ="${time.hour}:${time.minute}"),
+                value = TextFieldValue(text ="${get_correct_dateTime(time.hour)}:${get_correct_dateTime(time.minute)}"),
                 onValueChange = {},
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Colors.es_CreatingTextField,
                     disabledContainerColor = Colors.es_CreatingTextField,
                     focusedContainerColor = Colors.es_CreatingTextField
                 ),
-                modifier = Modifier.width(140.dp).padding(end = 16.dp),
+                modifier = Modifier
+                    .width(180.dp)
+                    .padding(end = 16.dp),
                 label = {
                     Text(text = "Выберите время")
                 },
@@ -433,7 +449,7 @@ fun CreateEventScreen(
                     containerColor = Color.LightGray
                 ),
                 onClick = { expandedTime=true }) {
-                Text(text = "Выбрать", maxLines = 1)
+                Text(text = "Выбрать", maxLines = 1, color = Color.Black)
             }
         }
         if (expandedDate){
@@ -462,7 +478,7 @@ fun CreateEventScreen(
                         modifier = Modifier.wrapContentWidth(),
                         update = { views ->
                             views.setOnDateChangeListener { calendarView, year, month, dayOfMonth ->
-                                date = LocalDate.now().withYear(year).withMonth(month).withDayOfMonth(dayOfMonth)
+                                date = LocalDate.now().withYear(year).withMonth(month+1).withDayOfMonth(dayOfMonth)
                             }
                         }
                     )
@@ -519,7 +535,9 @@ fun CreateEventScreen(
         Spacer(modifier = Modifier.padding(DunoSizes.smallDp))
 
         Button(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             onClick = {
             val sqlDate = LocalDateTime.of(
                 date.year,

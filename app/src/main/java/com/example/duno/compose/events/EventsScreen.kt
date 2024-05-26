@@ -137,7 +137,7 @@ fun EventsScreen(
         var active by remember { mutableStateOf(false) }
         Box(modifier = Modifier
             .fillMaxWidth()
-            .background(color = Color.White)
+            .background(color = Colors.vistaWhite)
             .height(76.dp)){
         SearchBar(modifier = Modifier
             .fillMaxWidth(1f)
@@ -159,14 +159,14 @@ fun EventsScreen(
             placeholder = {
                 if(!active){
                 Text(text = "Поиск мероприятия",
-                    fontSize = 14.sp)
+                    style = MaterialTheme.typography.bodyMedium)
                 }
             },
             trailingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = null)
             },
             colors = SearchBarDefaults.colors(
-                containerColor = Color("#fefeff".toColorInt()),
+                containerColor = Color("#F3F2ED".toColorInt()),
                 dividerColor = Colors.ss_AccentColor
                 )
         ) {}
@@ -288,48 +288,6 @@ fun EventsList(
     }
 }
 
-
-@Composable
-fun IconStatus(
-    status: Boolean
-){
-    if (status){
-        FilterChip(modifier = Modifier.size(10.dp), selected = true, onClick = {  }, label = {  }, colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Colors.es_Accept))
-        //Icon(imageVector = ImageVector.vectorResource(id = R.drawable.green_signal), contentDescription = null, tint= Color.Unspecified)
-    }else{
-        FilterChip(modifier = Modifier.size(10.dp), selected = true, onClick = {  }, label = {  }, colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Colors.es_Cancel))
-        //Icon(imageVector = ImageVector.vectorResource(R.drawable.red_signal), contentDescription = null, tint= Color.Unspecified)
-    }
-}
-
-@Composable
-fun IconLike(
-    userLikeEvent: MutableState<Boolean>,
-    meetingViewModel: MeetingViewModel,
-    userNickname: String,
-    event: ApiMeeting
-) {
-    IconButton(
-        modifier = Modifier.size(36.dp),
-        onClick = {
-            userLikeEvent.value = if (!userLikeEvent.value){
-                meetingViewModel.putUserLikes(userNickname, event.meetingId)
-                true
-            }else{
-                meetingViewModel.deleteUserLikes(userNickname, event.meetingId)
-                false
-            }
-            //Timber.e(userLikes.toString())
-        }) {
-        if (userLikeEvent.value){
-            Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
-        }
-        else{
-            Icon(imageVector = Icons.Sharp.FavoriteBorder, contentDescription = null, tint = Color.LightGray)
-
-        }
-    }
-}
 
 
 @Preview

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 @Module
 @InstallIn(SingletonComponent::class)
 object BDBuilder {
-    private const val BASE_URL = "http://192.168.0.104:4000"
+    private const val BASE_URL = "http://localhost:4000"
     const val NETWORK_TIMEOUT = 60L
     const val animationDuration = 1000L
 
